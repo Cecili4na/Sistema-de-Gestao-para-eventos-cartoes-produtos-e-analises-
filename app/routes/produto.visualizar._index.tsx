@@ -1,6 +1,7 @@
 import { useLoaderData, Link } from "@remix-run/react";
 import { json } from "@remix-run/node";
 import { supabase } from "~/supabase/supabaseClient";
+import { LuPencilLine } from "react-icons/lu";
 
 export const loader = async () => {
   try {
@@ -269,18 +270,12 @@ export default function VisualizarProdutos() {
                         </span>
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
-                        <a
-                          href={`/produto/editar/${produto.id}`}
-                          className="text-indigo-600 hover:text-indigo-900 mr-4"
+                        <Link
+                          to={`/produto/visualizar/${produto.id}`}
+                          className="text-indigo-600 hover:text-indigo-900"
                         >
-                          Editar
-                        </a>
-                        <a
-                          href={`/produto/visualizar/${produto.id}`}
-                          className="text-blue-600 hover:text-blue-900"
-                        >
-                          Detalhes
-                        </a>
+                          <LuPencilLine className="text-lg" />
+                        </Link>
                       </td>
                     </tr>
                   ))}

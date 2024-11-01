@@ -1,26 +1,38 @@
 import { useState } from "react";
-import { useActionData, Form } from "@remix-run/react";
-import { json, ActionFunctionArgs } from "@remix-run/node";
+import { useLoaderData, useActionData, Form } from "@remix-run/react";
+import { json, ActionFunctionArgs, LoaderFunctionArgs } from "@remix-run/node";
 import { supabase } from "~/supabase/supabaseClient";
 import { PageHeader, Card } from "./_layout.produto";
-
-export const meta = () => {
-  return [
-    { title: "Cadastro de Produto" },
-    {
-      name: "description",
-      content: "Página para cadastrar produto no Supabase",
-    },
-  ];
-};
 
 interface ActionData {
   status: "success" | "error";
   message: string;
 }
 
-export async function action({ request }: ActionFunctionArgs) {
+export const loader = async ({ params }: LoaderFunctionArgs) => {
+  const { id } = params;
+
+  try {
+    const { data: produto, error } = await supabase
+      .from("Produto")
+      .select("*")
+      .eq("id", id)
+      .single();
+
+    if (error) throw error;
+    if (!produto) throw new Error("Produto não encontrado");
+
+    return json({ produto, error: null });
+  } catch (error) {
+    console.error("Erro ao carregar produto:", error);
+    return json({ produto: null, error: "Erro ao carregar produto" });
+  }
+};
+
+export async function action({ request, params }: ActionFunctionArgs) {
+  const { id } = params;
   const formData = await request.formData();
+
   const nome = formData.get("nome") as string;
   const preco = Number(formData.get("preco"));
   const quantidade = Number(formData.get("quantidade"));
@@ -39,29 +51,39 @@ export async function action({ request }: ActionFunctionArgs) {
   try {
     const { error } = await supabase
       .from("Produto")
-      .insert([{ nome, preco, quantidade, disponivel }]);
+      .update({ nome, preco, quantidade, disponivel })
+      .eq("id", id);
 
     if (error) throw error;
 
     return json<ActionData>({
       status: "success",
-      message: "Produto cadastrado com sucesso!",
+      message: "Produto atualizado com sucesso!",
     });
   } catch (error) {
     return json<ActionData>(
       {
         status: "error",
-        message: "Erro ao cadastrar produto. Tente novamente.",
+        message: "Erro ao atualizar produto. Tente novamente.",
       },
-      { status: 400 }
+      { status: 500 }
     );
   }
 }
 
-export default function Produto() {
+export default function ProdutoVisualizarEditar() {
+  const { produto, error } = useLoaderData<typeof loader>();
   const actionData = useActionData<typeof action>();
+  const [isEditing, setIsEditing] = useState(false);
   const [precoError, setPrecoError] = useState<string | null>(null);
   const [quantidadeError, setQuantidadeError] = useState<string | null>(null);
+
+  const formatarPreco = (preco: number) => {
+    return new Intl.NumberFormat("pt-BR", {
+      style: "currency",
+      currency: "BRL",
+    }).format(preco);
+  };
 
   const handlePrecoChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const value = parseFloat(e.target.value);
@@ -74,12 +96,28 @@ export default function Produto() {
 
   const handleQuantidadeChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const value = parseInt(e.target.value);
-    if (value <= 0) {
+    if (value < 0) {
       setQuantidadeError("A quantidade deve ser maior ou igual a 0.");
     } else {
       setQuantidadeError(null);
     }
   };
+
+  if (error) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 py-12 px-4 sm:px-6 lg:px-8">
+        <div className="max-w-2xl mx-auto">
+          <Card>
+            <div className="p-6">
+              <div className="bg-red-50 text-red-700 p-4 rounded-lg">
+                {error}
+              </div>
+            </div>
+          </Card>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 py-12 px-4 sm:px-6 lg:px-8">
@@ -89,9 +127,10 @@ export default function Produto() {
           subtitle="Sistema de Gestão de Produtos"
         />
 
-        <Card title="Cadastrar Novo Produto">
+        <Card title={isEditing ? "Editar Produto" : "Visualizar Produto"}>
           <div className="p-6">
             <Form method="post" className="space-y-6">
+              {/* Nome do Produto */}
               <div>
                 <label
                   htmlFor="nome"
@@ -103,8 +142,9 @@ export default function Produto() {
                   id="nome"
                   type="text"
                   name="nome"
-                  placeholder="Digite o nome do produto"
-                  className="w-full px-4 py-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors bg-gray-50 text-gray-900"
+                  defaultValue={produto.nome}
+                  disabled={!isEditing}
+                  className="w-full px-4 py-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors bg-gray-50 text-gray-900 disabled:bg-gray-100 disabled:text-gray-500"
                   required
                 />
               </div>
@@ -123,9 +163,10 @@ export default function Produto() {
                     id="preco"
                     type="number"
                     name="preco"
-                    placeholder="0,00"
+                    defaultValue={produto.preco}
                     step="0.50"
-                    className="w-full px-4 py-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors bg-gray-50 text-gray-900"
+                    disabled={!isEditing}
+                    className="w-full px-4 py-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors bg-gray-50 text-gray-900 disabled:bg-gray-100 disabled:text-gray-500"
                     onChange={handlePrecoChange}
                     required
                   />
@@ -146,8 +187,9 @@ export default function Produto() {
                     id="quantidade"
                     type="number"
                     name="quantidade"
-                    placeholder="0"
-                    className="w-full px-4 py-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors bg-gray-50 text-gray-900"
+                    defaultValue={produto.quantidade}
+                    disabled={!isEditing}
+                    className="w-full px-4 py-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors bg-gray-50 text-gray-900 disabled:bg-gray-100 disabled:text-gray-500"
                     onChange={handleQuantidadeChange}
                     required
                   />
@@ -159,6 +201,24 @@ export default function Produto() {
                 </div>
               </div>
 
+              {/* Valor Total */}
+              <div>
+                <label
+                  htmlFor="valorTotal"
+                  className="block text-sm font-medium text-gray-700 mb-1"
+                >
+                  Valor Total em Estoque
+                </label>
+                <div
+                  id="valorTotal"
+                  className="px-4 py-3 bg-gray-100 rounded-lg text-gray-700"
+                  aria-label="Valor total em estoque"
+                  role="status"
+                >
+                  {formatarPreco(produto.preco * produto.quantidade)}
+                </div>
+              </div>
+
               {/* Checkbox Disponível */}
               <div className="flex items-center">
                 <input
@@ -166,11 +226,13 @@ export default function Produto() {
                   type="checkbox"
                   name="disponivel"
                   value="true"
-                  className="h-5 w-5 text-blue-600 focus:ring-blue-500 border-gray-300 rounded cursor-pointer"
+                  defaultChecked={produto.disponivel}
+                  disabled={!isEditing}
+                  className="h-5 w-5 text-blue-600 focus:ring-blue-500 border-gray-300 rounded cursor-pointer disabled:cursor-not-allowed"
                 />
                 <label
                   htmlFor="disponivel"
-                  className="ml-2 block text-sm text-gray-700 cursor-pointer"
+                  className="ml-2 block text-sm text-gray-700"
                 >
                   Disponível para venda
                 </label>
@@ -219,13 +281,34 @@ export default function Produto() {
                 </div>
               )}
 
-              {/* Botão Submit */}
-              <button
-                type="submit"
-                className="w-full bg-gradient-to-r from-blue-600 to-indigo-600 text-white py-3 px-6 rounded-lg font-medium hover:from-blue-700 hover:to-indigo-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transform transition-all duration-200 hover:scale-[1.02]"
-              >
-                Cadastrar Produto
-              </button>
+              {/* Botões de Ação */}
+              <div className="flex gap-4">
+                {isEditing ? (
+                  <>
+                    <button
+                      type="submit"
+                      className="flex-1 bg-gradient-to-r from-blue-600 to-indigo-600 text-white py-3 px-6 rounded-lg font-medium hover:from-blue-700 hover:to-indigo-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transform transition-all duration-200 hover:scale-[1.02]"
+                    >
+                      Salvar Alterações
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => setIsEditing(false)}
+                      className="flex-1 bg-gray-100 text-gray-700 py-3 px-6 rounded-lg font-medium hover:bg-gray-200 focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-offset-2 transform transition-all duration-200 hover:scale-[1.02]"
+                    >
+                      Cancelar
+                    </button>
+                  </>
+                ) : (
+                  <button
+                    type="button"
+                    onClick={() => setIsEditing(true)}
+                    className="flex-1 bg-gradient-to-r from-blue-600 to-indigo-600 text-white py-3 px-6 rounded-lg font-medium hover:from-blue-700 hover:to-indigo-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transform transition-all duration-200 hover:scale-[1.02]"
+                  >
+                    Editar Produto
+                  </button>
+                )}
+              </div>
             </Form>
           </div>
         </Card>

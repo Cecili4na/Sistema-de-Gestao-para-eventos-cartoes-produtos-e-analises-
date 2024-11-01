@@ -1,6 +1,7 @@
 import { Link, useLoaderData } from "@remix-run/react";
 import { json } from "@remix-run/node";
 import { supabase } from "~/supabase/supabaseClient";
+import { LuPencilLine } from "react-icons/lu";
 
 export const loader = async () => {
   try {
@@ -41,7 +42,7 @@ export default function ProdutosDashboard() {
         </header>
 
         {/* Cards de Ação Principais */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-12">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-12">
           {/* Card de Cadastro */}
           <Link
             to="/produto/cadastra"
@@ -67,38 +68,7 @@ export default function ProdutosDashboard() {
                 Cadastrar Novo Produto
               </h2>
               <p className="text-gray-600">
-                Adicione novos produtos ao sistema com preços e quantidades.
-              </p>
-            </div>
-          </Link>
-
-          {/* Card de Edição */}
-          <Link
-            to="/produto/editar"
-            className="group bg-white rounded-2xl shadow-lg overflow-hidden transform transition-all duration-300 hover:scale-105 hover:shadow-xl"
-          >
-            <div className="p-6">
-              <div className="w-12 h-12 bg-indigo-100 rounded-lg mb-4 flex items-center justify-center group-hover:bg-indigo-200 transition-colors">
-                <svg
-                  className="w-6 h-6 text-indigo-600"
-                  fill="none"
-                  stroke="currentColor"
-                  viewBox="0 0 24 24"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth="2"
-                    d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"
-                  />
-                </svg>
-              </div>
-              <h2 className="text-xl font-semibold text-gray-800 mb-2">
-                Editar Produtos
-              </h2>
-              <p className="text-gray-600">
-                Atualize informações, preços e quantidades dos produtos
-                existentes.
+                Adicione novos produtos ao seu sistema.
               </p>
             </div>
           </Link>
@@ -134,7 +104,7 @@ export default function ProdutosDashboard() {
                 Visualizar Produtos
               </h2>
               <p className="text-gray-600">
-                Consulte detalhes e informações completas do catálogo.
+                Consulte detalhes do seu catálogo de produtos.
               </p>
             </div>
           </Link>
@@ -207,16 +177,10 @@ export default function ProdutosDashboard() {
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
                         <Link
-                          to={`/produto/editar/${produto.id}`}
-                          className="text-indigo-600 hover:text-indigo-900 mr-4"
-                        >
-                          Editar
-                        </Link>
-                        <Link
                           to={`/produto/visualizar/${produto.id}`}
-                          className="text-blue-600 hover:text-blue-900"
+                          className="text-indigo-600 hover:text-indigo-900"
                         >
-                          Visualizar
+                          <LuPencilLine className="text-lg" />
                         </Link>
                       </td>
                     </tr>
