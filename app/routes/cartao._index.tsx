@@ -1,39 +1,44 @@
-// app/routes/cadastrar-cartao.jsx
-import { useState } from 'react';
-import { supabase } from '~/supabase/supabaseClient';
+// app/routes/cadastra.jsx
+import { useState } from "react";
+import { supabase } from "~/supabase/supabaseClient";
 
 export const meta = () => {
   return [
     { title: "Cadastro de Cartões" },
-    { name: "description", content: "Página para cadastrar cartões no Supabase" },
+    {
+      name: "description",
+      content: "Página para cadastrar cartões no Supabase",
+    },
   ];
 };
 
-export default function CadastrarCartao() {
-  const [idCard, setIdCard] = useState('');
-  const [nome, setNome] = useState('');
-  const [telefone, setTelefone] = useState('');
-  const [mensagem, setMensagem] = useState('');
+export default function Cartao() {
+  const [idCard, setIdCard] = useState("");
+  const [nome, setNome] = useState("");
+  const [telefone, setTelefone] = useState("");
+  const [mensagem, setMensagem] = useState("");
 
   async function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
     const { error } = await supabase
-      .from('Card')
+      .from("Card")
       .insert([{ idCard, nome, telefone, balance: 0 }]);
 
     if (error) {
       setMensagem("Erro ao cadastrar cartão. Tente novamente.");
     } else {
       setMensagem("Cartão cadastrado com sucesso!");
-      setIdCard('');
-      setNome('');
-      setTelefone('');
+      setIdCard("");
+      setNome("");
+      setTelefone("");
     }
   }
 
   return (
     <div className="flex flex-col h-screen items-center justify-center bg-blue-100">
-      <h1 className="text-4xl font-bold text-blue-500 mb-4">Acutis Data Modos</h1>
+      <h1 className="text-4xl font-bold text-blue-500 mb-4">
+        Acutis Data Modos
+      </h1>
       <div className="flex flex-col items-center gap-8 p-8 rounded-lg shadow-lg bg-white w-full max-w-md">
         <h2 className="text-2xl font-bold text-gray-800 dark:text-gray-800">
           Cadastrar Cartão
@@ -45,7 +50,6 @@ export default function CadastrarCartao() {
             value={idCard}
             onChange={(e) => setIdCard(e.target.value)}
             className="p-3 border rounded-lg bg-gray-300 text-black focus:outline-none focus:ring-2 focus:ring-blue-400"
-
             required
           />
           <input
@@ -54,7 +58,6 @@ export default function CadastrarCartao() {
             value={nome}
             onChange={(e) => setNome(e.target.value)}
             className="p-3 border rounded-lg bg-gray-300 text-black focus:outline-none focus:ring-2 focus:ring-blue-400"
-
           />
           <input
             type="tel"
