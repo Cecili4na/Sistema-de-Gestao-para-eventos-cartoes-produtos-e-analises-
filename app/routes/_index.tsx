@@ -71,7 +71,7 @@ export default function Home() {
               eficiente, com todos os detalhes necessários.
             </p>
             <Link
-              to="/produto/cadastra"
+              to="/produto"
               className="mt-6 inline-flex items-center text-blue-600 hover:text-blue-700"
             >
               Cadastrar produto
@@ -114,17 +114,17 @@ export default function Home() {
               </svg>
             </div>
             <h3 className="text-xl font-bold text-gray-900 mb-4">
-              Visualização do Estoque
+              Cadastrar Cartão
             </h3>
             <p className="text-gray-600">
-              Acompanhe seu inventário em tempo real, com dados precisos sobre
-              disponibilidade e valores.
+              Adicione novos cartões ao seu catálogo de forma rápida e
+              eficiente, com todos os detalhes necessários.
             </p>
             <Link
-              to="/produto/visualizar"
+              to="/cartao"
               className="mt-6 inline-flex items-center text-indigo-600 hover:text-indigo-700"
             >
-              Ver estoque
+              Ver Cartão
               <svg
                 className="ml-2 w-4 h-4"
                 fill="none"

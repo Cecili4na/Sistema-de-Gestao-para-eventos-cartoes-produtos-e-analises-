@@ -1,52 +1,37 @@
-import { useActionData, Form } from "@remix-run/react";
-import { json, ActionFunctionArgs } from "@remix-run/node";
+import { useState } from "react";
 import { supabase } from "~/supabase/supabaseClient";
 
 export const meta = () => {
   return [
-    { title: "Cadastro de Cartão" },
+    { title: "Cadastro de Cartões" },
     {
       name: "description",
-      content: "Página para cadastrar cartão no Supabase",
+      content: "Página para cadastrar cartões no Supabase",
     },
   ];
 };
 
-interface ActionData {
-  status: "success" | "error";
-  message: string;
-}
+export default function CadastrarCartao() {
+  const [idCard, setIdCard] = useState("");
+  const [nome, setNome] = useState("");
+  const [telefone, setTelefone] = useState("");
+  const [mensagem, setMensagem] = useState("");
 
-export async function action({ request }: ActionFunctionArgs) {
-  const formData = await request.formData();
-  const idCard = formData.get("idCard") as string;
-  const nome = formData.get("nome") as string;
-  const telefone = formData.get("telefone") as string;
-
-  try {
+  async function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
+    event.preventDefault();
     const { error } = await supabase
       .from("Card")
       .insert([{ idCard, nome, telefone, balance: 0 }]);
 
-    if (error) throw error;
-
-    return json<ActionData>({
-      status: "success",
-      message: "Cartão cadastrado com sucesso!",
-    });
-  } catch (error) {
-    return json<ActionData>(
-      {
-        status: "error",
-        message: "Erro ao cadastrar cartão. Tente novamente.",
-      },
-      { status: 400 }
-    );
+    if (error) {
+      setMensagem("Erro ao cadastrar cartão. Tente novamente.");
+    } else {
+      setMensagem("Cartão cadastrado com sucesso!");
+      setIdCard("");
+      setNome("");
+      setTelefone("");
+    }
   }
-}
-
-export default function CartaoCadastra() {
-  const actionData = useActionData<typeof action>();
 
   return (
     <div className="flex flex-col h-screen items-center justify-center bg-blue-100">
@@ -57,24 +42,27 @@ export default function CartaoCadastra() {
         <h2 className="text-2xl font-bold text-gray-800 dark:text-gray-800">
           Cadastrar Cartão
         </h2>
-        <Form method="post" className="flex flex-col gap-4 w-full">
+        <form onSubmit={handleSubmit} className="flex flex-col gap-4 w-full">
           <input
             type="text"
-            name="idCard"
             placeholder="ID do Cartão"
+            value={idCard}
+            onChange={(e) => setIdCard(e.target.value)}
             className="p-3 border rounded-lg bg-gray-300 text-black focus:outline-none focus:ring-2 focus:ring-blue-400"
             required
           />
           <input
             type="text"
-            name="nome"
             placeholder="Nome do Titular"
+            value={nome}
+            onChange={(e) => setNome(e.target.value)}
             className="p-3 border rounded-lg bg-gray-300 text-black focus:outline-none focus:ring-2 focus:ring-blue-400"
           />
           <input
             type="tel"
-            name="telefone"
             placeholder="Telefone"
+            value={telefone}
+            onChange={(e) => setTelefone(e.target.value)}
             className="p-3 border rounded-lg bg-gray-300 text-black focus:outline-none focus:ring-2 focus:ring-blue-400"
             required
           />
@@ -84,18 +72,8 @@ export default function CartaoCadastra() {
           >
             Cadastrar Cartão
           </button>
-        </Form>
-        {actionData?.message && (
-          <p
-            className={`text-center ${
-              actionData.status === "success"
-                ? "text-green-500"
-                : "text-red-500"
-            }`}
-          >
-            {actionData.message}
-          </p>
-        )}
+        </form>
+        {mensagem && <p className="text-center text-green-500">{mensagem}</p>}
       </div>
     </div>
   );
