@@ -11,41 +11,19 @@ export default function Home() {
 
         <div className="relative px-4 py-24 sm:px-6 lg:px-8">
           <div className="max-w-7xl mx-auto text-center">
+            <img src="/logo.png" alt="AcutisDataModos Logo" className="h-20 mb-8 mx-auto" />
             <h1 className="text-4xl sm:text-6xl font-extrabold text-white mb-8">
-              Sistema de Gestão de Produtos
+              AcutisDataModos
             </h1>
-            <p className="text-xl sm:text-2xl text-blue-100 max-w-3xl mx-auto mb-12">
-              Simplifique o gerenciamento do seu negócio com nossa plataforma
-              intuitiva e poderosa
+            <p className="text-lg sm:text-xl text-blue-100 max-w-3xl mx-auto mb-12">
+            Somos uma plataforma de gestão para eventos religiosos, desenvolvida com base no legado digital do bem-aventurado Carlos Acutis.
             </p>
-            <div className="flex flex-col sm:flex-row gap-4 justify-center">
-              <Link
-                to="/produto/"
-                className="inline-flex items-center justify-center px-8 py-4 text-lg font-medium rounded-xl text-white bg-blue-500 hover:bg-blue-600 transform transition-all duration-200 hover:scale-105 shadow-lg"
-              >
-                Começar Agora
-                <svg
-                  className="ml-2 w-5 h-5"
-                  fill="none"
-                  stroke="currentColor"
-                  viewBox="0 0 24 24"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth="2"
-                    d="M13 7l5 5m0 0l-5 5m5-5H6"
-                  />
-                </svg>
-              </Link>
-            </div>
           </div>
         </div>
       </div>
 
-      {/* Seção Principal */}
+      {/* Seção de Funcionalidades */}
       <div className="max-w-7xl mx-auto px-4 py-16 sm:px-6 lg:px-8">
-        {/* Cartões de Funcionalidades */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 mb-16">
           <div className="bg-white rounded-2xl p-8 shadow-lg hover:shadow-xl transition-shadow">
             <div className="h-12 w-12 bg-blue-100 rounded-xl flex items-center justify-center mb-6">
@@ -64,17 +42,16 @@ export default function Home() {
               </svg>
             </div>
             <h3 className="text-xl font-bold text-gray-900 mb-4">
-              Cadastro de Produtos
+              Página de Produtos
             </h3>
             <p className="text-gray-600">
-              Adicione novos produtos ao seu catálogo de forma rápida e
-              eficiente, com todos os detalhes necessários.
+              Adicione, edite e visualize os produtos do seu encontro aqui.
             </p>
             <Link
               to="/produto"
               className="mt-6 inline-flex items-center text-blue-600 hover:text-blue-700"
             >
-              Cadastrar produto
+              Acessar
               <svg
                 className="ml-2 w-4 h-4"
                 fill="none"
@@ -114,17 +91,16 @@ export default function Home() {
               </svg>
             </div>
             <h3 className="text-xl font-bold text-gray-900 mb-4">
-              Cadastrar Cartão
+              Página de Cartões
             </h3>
             <p className="text-gray-600">
-              Adicione novos cartões ao seu catálogo de forma rápida e
-              eficiente, com todos os detalhes necessários.
+              Adicione, edite, recarregue, visualize, debite e credite os cartoes do seu encontro.
             </p>
             <Link
               to="/cartao"
               className="mt-6 inline-flex items-center text-indigo-600 hover:text-indigo-700"
             >
-              Ver Cartão
+              Acessar
               <svg
                 className="ml-2 w-4 h-4"
                 fill="none"
@@ -158,17 +134,16 @@ export default function Home() {
               </svg>
             </div>
             <h3 className="text-xl font-bold text-gray-900 mb-4">
-              Análise de Dados
+              Gestão
             </h3>
             <p className="text-gray-600">
-              Tenha insights valiosos com gráficos e relatórios detalhados sobre
-              seu negócio.
+              Gerencie pedidos, lucro, historico de vendas e demais analises.
             </p>
             <Link
               to="/produto/visualizar"
               className="mt-6 inline-flex items-center text-purple-600 hover:text-purple-700"
             >
-              Ver análises
+              Acessar
               <svg
                 className="ml-2 w-4 h-4"
                 fill="none"
@@ -183,104 +158,6 @@ export default function Home() {
                 />
               </svg>
             </Link>
-          </div>
-        </div>
-
-        {/* Seção de Destaques */}
-        <div className="bg-white rounded-2xl shadow-lg overflow-hidden">
-          <div className="bg-gradient-to-r from-blue-600 to-indigo-600 px-8 py-6">
-            <h2 className="text-2xl font-bold text-white">
-              Por que escolher nossa plataforma?
-            </h2>
-          </div>
-          <div className="p-8 grid grid-cols-1 md:grid-cols-2 gap-8">
-            <div>
-              <h3 className="text-lg font-semibold text-gray-900 mb-4 flex items-center">
-                <svg
-                  className="h-6 w-6 text-blue-600 mr-2"
-                  fill="none"
-                  stroke="currentColor"
-                  viewBox="0 0 24 24"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth="2"
-                    d="M5 13l4 4L19 7"
-                  />
-                </svg>
-                Interface Intuitiva
-              </h3>
-              <p className="text-gray-600">
-                Design moderno e fácil de usar, permitindo que você foque no que
-                realmente importa.
-              </p>
-            </div>
-            <div>
-              <h3 className="text-lg font-semibold text-gray-900 mb-4 flex items-center">
-                <svg
-                  className="h-6 w-6 text-blue-600 mr-2"
-                  fill="none"
-                  stroke="currentColor"
-                  viewBox="0 0 24 24"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth="2"
-                    d="M13 10V3L4 14h7v7l9-11h-7z"
-                  />
-                </svg>
-                Alta Performance
-              </h3>
-              <p className="text-gray-600">
-                Sistema otimizado para garantir rapidez em todas as operações.
-              </p>
-            </div>
-            <div>
-              <h3 className="text-lg font-semibold text-gray-900 mb-4 flex items-center">
-                <svg
-                  className="h-6 w-6 text-blue-600 mr-2"
-                  fill="none"
-                  stroke="currentColor"
-                  viewBox="0 0 24 24"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth="2"
-                    d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"
-                  />
-                </svg>
-                Dados Seguros
-              </h3>
-              <p className="text-gray-600">
-                Seus dados estão protegidos com as mais avançadas tecnologias de
-                segurança.
-              </p>
-            </div>
-            <div>
-              <h3 className="text-lg font-semibold text-gray-900 mb-4 flex items-center">
-                <svg
-                  className="h-6 w-6 text-blue-600 mr-2"
-                  fill="none"
-                  stroke="currentColor"
-                  viewBox="0 0 24 24"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth="2"
-                    d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"
-                  />
-                </svg>
-                Atualizações em Tempo Real
-              </h3>
-              <p className="text-gray-600">
-                Todas as alterações são refletidas instantaneamente em todo o
-                sistema.
-              </p>
-            </div>
           </div>
         </div>
       </div>
