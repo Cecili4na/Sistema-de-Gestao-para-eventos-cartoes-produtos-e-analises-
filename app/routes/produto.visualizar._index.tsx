@@ -8,7 +8,7 @@ export const loader = async () => {
   try {
     const { data: produtos, error } = await supabase
       .from("Produto")
-      .select("*")
+      .select("*, Categoria")
       .order("created_at", { ascending: false });
 
     if (error) throw error;
@@ -23,6 +23,7 @@ export const loader = async () => {
 export default function VisualizarProdutos() {
   const { produtos, error } = useLoaderData<typeof loader>();
   const [busca, setBusca] = useState("");
+  const [categoria, setCategoria] = useState<string | null>(null);
 
   const formatarPreco = (preco: number) => {
     return new Intl.NumberFormat("pt-BR", {
@@ -31,17 +32,10 @@ export default function VisualizarProdutos() {
     }).format(preco);
   };
 
-  // Filtra os produtos com base na busca
+  // Filtra os produtos com base na busca e categoria
   const produtosFiltrados = produtos.filter(produto =>
-    produto.nome.toLowerCase().includes(busca.toLowerCase())
-  );
-
-  // Cálculo das estatísticas com base nos produtos filtrados
-  const totalProdutos = produtosFiltrados.length;
-  const produtosDisponiveis = produtosFiltrados.filter((p) => p.disponivel).length;
-  const quantidadeTotalItens = produtosFiltrados.reduce(
-    (acc, p) => acc + p.quantidade,
-    0
+    produto.nome.toLowerCase().includes(busca.toLowerCase()) &&
+    (categoria === null || produto.Categoria === categoria)
   );
 
   return (
@@ -79,7 +73,6 @@ export default function VisualizarProdutos() {
             Voltar
           </Link>
 
-          {/* Campo de Busca */}
           <div className="relative w-full sm:w-96">
             <input
               type="text"
@@ -108,100 +101,47 @@ export default function VisualizarProdutos() {
         <div className="flex flex-col-reverse sm:flex-col gap-8">
           {/* Cards de Estatísticas */}
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-6">
-            {/* Total de Produtos */}
-            <div className="bg-white rounded-2xl shadow-lg p-6">
-              <div className="flex items-center">
-                <div className="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center">
-                  <svg
-                    className="w-6 h-6 text-blue-600"
-                    fill="none"
-                    stroke="currentColor"
-                    viewBox="0 0 24 24"
-                  >
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      strokeWidth="2"
-                      d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"
-                    />
-                  </svg>
-                </div>
-                <div className="ml-8">
-                  <p className="text-sm font-medium text-gray-600">
-                    Total de Produtos
-                  </p>
-                  <p className="text-2xl font-bold text-gray-900">
-                    {totalProdutos}
-                  </p>
-                </div>
-              </div>
-            </div>
-
-            {/* Produtos Disponíveis */}
-            <div className="bg-white rounded-2xl shadow-lg p-6">
-              <div className="flex items-center">
-                <div className="w-12 h-12 bg-green-100 rounded-lg flex items-center justify-center">
-                  <svg
-                    className="w-6 h-6 text-green-600"
-                    fill="none"
-                    stroke="currentColor"
-                    viewBox="0 0 24 24"
-                  >
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      strokeWidth="2"
-                      d="M5 13l4 4L19 7"
-                    />
-                  </svg>
-                </div>
-                <div className="ml-4">
-                  <p className="text-sm font-medium text-gray-600">
-                    Produtos Disponíveis
-                  </p>
-                  <p className="text-2xl font-bold text-gray-900">
-                    {produtosDisponiveis}
-                  </p>
-                </div>
-              </div>
-            </div>
-
-            {/* Quantidade Total de Itens */}
-            <div className="bg-white rounded-2xl shadow-lg p-6">
-              <div className="flex items-center">
-                <div className="w-12 h-12 bg-purple-100 rounded-lg flex items-center justify-center">
-                  <svg
-                    className="w-6 h-6 text-purple-600"
-                    fill="none"
-                    stroke="currentColor"
-                    viewBox="0 0 24 24"
-                  >
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      strokeWidth="2"
-                      d="M7 20l4-16m2 16l4-16M6 9h14M4 15h14"
-                    />
-                  </svg>
-                </div>
-                <div className="ml-4">
-                  <p className="text-sm font-medium text-gray-600">
-                    Total de Itens
-                  </p>
-                  <p className="text-2xl font-bold text-gray-900">
-                    {quantidadeTotalItens}
-                  </p>
-                </div>
-              </div>
-            </div>
+            {/* ... */}
           </div>
 
           {/* Tabela de Produtos */}
           <div className="bg-white rounded-2xl shadow-xl overflow-hidden">
-            <div className="bg-gradient-to-r from-blue-500 to-indigo-600 px-6 py-4">
+            <div className="bg-gradient-to-r from-blue-500 to-indigo-600 px-6 py-4 flex justify-between items-center">
               <h2 className="text-xl font-semibold text-white">
                 Lista Completa de Produtos
               </h2>
+              <div className="flex gap-2">
+                <button
+                  className={`px-4 py-2 rounded-lg text-sm font-medium ${
+                    categoria === null
+                      ? "bg-white text-indigo-600"
+                      : "bg-gray-200 text-gray-700"
+                  }`}
+                  onClick={() => setCategoria(null)}
+                >
+                  Todas as Categorias
+                </button>
+                <button
+                  className={`px-4 py-2 rounded-lg text-sm font-medium ${
+                    categoria === 'Lojinha'
+                      ? "bg-white text-indigo-600"
+                      : "bg-gray-200 text-gray-700"
+                  }`}
+                  onClick={() => setCategoria('Lojinha')}
+                >
+                  Lojinha
+                </button>
+                <button
+                  className={`px-4 py-2 rounded-lg text-sm font-medium ${
+                    categoria === 'Lanchonete'
+                      ? "bg-white text-indigo-600"
+                      : "bg-gray-200 text-gray-700"
+                  }`}
+                  onClick={() => setCategoria('Lanchonete')}
+                >
+                  Lanchonete
+                </button>
+              </div>
             </div>
 
             {error ? (
@@ -217,6 +157,9 @@ export default function VisualizarProdutos() {
                     <tr>
                       <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                         Produto
+                      </th>
+                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                        Categoria
                       </th>
                       <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                         Preço
@@ -241,6 +184,11 @@ export default function VisualizarProdutos() {
                         <td className="px-6 py-4 whitespace-nowrap">
                           <div className="text-sm font-medium text-gray-900">
                             {produto.nome}
+                          </div>
+                        </td>
+                        <td className="px-6 py-4 whitespace-nowrap">
+                          <div className="text-sm text-gray-900">
+                            {produto.Categoria || 'Sem categoria'}
                           </div>
                         </td>
                         <td className="px-6 py-4 whitespace-nowrap">
