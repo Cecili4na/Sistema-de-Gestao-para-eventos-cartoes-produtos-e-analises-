@@ -13,10 +13,10 @@ interface Card {
 
 export const meta = () => {
   return [
-    { title: "Débito de Cartões" },
+    { title: "Recarga de Cartões" },
     {
       name: "description",
-      content: "Página para debitar cartões no Supabase",
+      content: "Página para recarregar cartões no Supabase",
     },
   ];
 };
@@ -30,12 +30,12 @@ function formatarValor(valor: number | string): string {
   });
 }
 
-export default function DebitarCartao() {
-  const [idCard, setIdCard] = useState<string>("");
-  const [valorDebito, setValorDebito] = useState<string>("");
-  const [mensagem, setMensagem] = useState<string>("");
-  const [confirmarDebito, setConfirmarDebito] = useState<boolean>(false);
-  const [nomeCartao, setNomeCartao] = useState<string>("");
+export default function RecarregarCartao() {
+  const [idCard, setIdCard] = useState("");
+  const [valorRecarga, setValorRecarga] = useState("");
+  const [mensagem, setMensagem] = useState("");
+  const [confirmarRecarga, setConfirmarRecarga] = useState(false);
+  const [nomeCartao, setNomeCartao] = useState("");
   const [saldoAtual, setSaldoAtual] = useState<number>(0);
 
   async function buscarCartao(): Promise<Card | null> {
@@ -58,24 +58,19 @@ export default function DebitarCartao() {
     return data as Card;
   }
 
-  async function handleConfirmarDebito() {
+  async function handleConfirmacaoRecarga() {
     const cartao = await buscarCartao();
 
     if (!cartao) return;
 
-    const valor = parseFloat(valorDebito);
+    const valor = parseFloat(valorRecarga);
 
     if (isNaN(valor) || valor <= 0) {
       setMensagem("Digite um valor válido");
       return;
     }
 
-    const novoSaldo = cartao.balance - valor;
-
-    if (novoSaldo < 0) {
-      setMensagem("Saldo insuficiente");
-      return;
-    }
+    const novoSaldo = cartao.balance + valor;
 
     // Atualizar saldo do cartão
     const { error: updateError } = await supabase
@@ -84,22 +79,21 @@ export default function DebitarCartao() {
       .eq("idCard", idCard);
 
     if (updateError) {
-      setMensagem("Erro ao atualizar saldo");
+      setMensagem("Erro ao recarregar cartão");
       return;
     }
 
-    // Registrar transação
+    // Registrar transação com valor positivo
     const { error: transactionError } = await supabase
       .from("Transacoes")
       .insert({
         idCard: cartao.idCard,
         nome: cartao.nome,
-        valor: -valor,
+        valor: valor,
         saldoAtual: novoSaldo,
       });
 
     if (transactionError) {
-      // Reverter o saldo em caso de erro
       await supabase
         .from("Card")
         .update({ balance: cartao.balance })
@@ -109,10 +103,14 @@ export default function DebitarCartao() {
       return;
     }
 
-    setMensagem("Débito realizado com sucesso!");
+    setMensagem(
+      `Recarga de R$ ${formatarValor(
+        valorRecarga
+      )} no cartão ${idCard} realizada com sucesso!`
+    );
     setIdCard("");
-    setValorDebito("");
-    setConfirmarDebito(false);
+    setValorRecarga("");
+    setConfirmarRecarga(false);
     setNomeCartao("");
     setSaldoAtual(0);
   }
@@ -120,7 +118,7 @@ export default function DebitarCartao() {
   async function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
 
-    if (!valorDebito || parseFloat(valorDebito) <= 0) {
+    if (!valorRecarga || parseFloat(valorRecarga) <= 0) {
       setMensagem("Digite um valor válido");
       return;
     }
@@ -128,17 +126,9 @@ export default function DebitarCartao() {
     const cartao = await buscarCartao();
 
     if (cartao) {
-      const valor = parseFloat(valorDebito);
-      const novoSaldo = cartao.balance - valor;
-
-      if (novoSaldo < 0) {
-        setMensagem("Saldo insuficiente");
-        return;
-      }
-
       setNomeCartao(cartao.nome);
       setSaldoAtual(cartao.balance);
-      setConfirmarDebito(true);
+      setConfirmarRecarga(true);
       setMensagem("");
     }
   }
@@ -172,9 +162,9 @@ export default function DebitarCartao() {
 
           <PageHeader />
 
-          <Card title="Debitar do Cartão">
+          <Card title="Recarregar Cartão">
             <div className="p-6">
-              {!confirmarDebito ? (
+              {!confirmarRecarga ? (
                 <form onSubmit={handleSubmit} className="space-y-6">
                   <div>
                     <label
@@ -199,17 +189,17 @@ export default function DebitarCartao() {
 
                   <div>
                     <label
-                      htmlFor="valorDebito"
+                      htmlFor="valorRecarga"
                       className="block text-sm font-medium text-gray-700 mb-1"
                     >
-                      Valor a Debitar
+                      Valor da Recarga
                     </label>
                     <input
-                      id="valorDebito"
+                      id="valorRecarga"
                       type="number"
-                      value={valorDebito}
+                      value={valorRecarga}
                       onChange={(e) => {
-                        setValorDebito(e.target.value);
+                        setValorRecarga(e.target.value);
                         setMensagem("");
                       }}
                       placeholder="0,00"
@@ -229,33 +219,18 @@ export default function DebitarCartao() {
                       }`}
                     >
                       <p className="flex items-center gap-2">
-                        {mensagem.includes("sucesso") ? (
-                          <svg
-                            xmlns="http://www.w3.org/2000/svg"
-                            className="h-5 w-5"
-                            viewBox="0 0 20 20"
-                            fill="currentColor"
-                          >
-                            <path
-                              fillRule="evenodd"
-                              d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z"
-                              clipRule="evenodd"
-                            />
-                          </svg>
-                        ) : (
-                          <svg
-                            xmlns="http://www.w3.org/2000/svg"
-                            className="h-5 w-5"
-                            viewBox="0 0 20 20"
-                            fill="currentColor"
-                          >
-                            <path
-                              fillRule="evenodd"
-                              d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z"
-                              clipRule="evenodd"
-                            />
-                          </svg>
-                        )}
+                        <svg
+                          xmlns="http://www.w3.org/2000/svg"
+                          className="h-5 w-5"
+                          viewBox="0 0 20 20"
+                          fill="currentColor"
+                        >
+                          <path
+                            fillRule="evenodd"
+                            d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z"
+                            clipRule="evenodd"
+                          />
+                        </svg>
                         {mensagem}
                       </p>
                     </div>
@@ -265,14 +240,14 @@ export default function DebitarCartao() {
                     type="submit"
                     className="w-full bg-gradient-to-r from-blue-600 to-indigo-600 text-white py-3 px-6 rounded-lg font-medium hover:from-blue-700 hover:to-indigo-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transform transition-all duration-200 hover:scale-[1.02]"
                   >
-                    Verificar Débito
+                    Verificar Recarga
                   </button>
                 </form>
               ) : (
                 <div className="space-y-6">
                   <div className="bg-yellow-50 border border-yellow-200 p-6 rounded-lg">
                     <h3 className="text-lg font-semibold text-gray-900 mb-4 text-center">
-                      Confirmar Débito
+                      Confirmar Recarga
                     </h3>
                     <div className="space-y-3 text-gray-900">
                       <p>
@@ -282,8 +257,8 @@ export default function DebitarCartao() {
                         <strong>Nome do Titular:</strong> {nomeCartao}
                       </p>
                       <p>
-                        <strong>Valor do Débito:</strong> R${" "}
-                        {formatarValor(valorDebito)}
+                        <strong>Valor da Recarga:</strong> R${" "}
+                        {formatarValor(valorRecarga)}
                       </p>
                       <p>
                         <strong>Saldo Atual:</strong> R${" "}
@@ -291,7 +266,7 @@ export default function DebitarCartao() {
                       </p>
                       <p>
                         <strong>Saldo Final:</strong> R${" "}
-                        {formatarValor(saldoAtual - parseFloat(valorDebito))}
+                        {formatarValor(saldoAtual + parseFloat(valorRecarga))}
                       </p>
                     </div>
                   </div>
@@ -299,14 +274,14 @@ export default function DebitarCartao() {
                   {/* Botões abaixo do card de informações */}
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                     <button
-                      onClick={handleConfirmarDebito}
+                      onClick={handleConfirmacaoRecarga}
                       className="w-full bg-green-600 text-white py-3 px-6 rounded-lg font-medium hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2 transform transition-all duration-200 hover:scale-[1.02]"
                     >
-                      Confirmar Débito
+                      Confirmar Recarga
                     </button>
                     <button
                       onClick={() => {
-                        setConfirmarDebito(false);
+                        setConfirmarRecarga(false);
                         setNomeCartao("");
                         setMensagem("");
                         setSaldoAtual(0);
