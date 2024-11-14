@@ -1,8 +1,10 @@
 import { useState } from "react";
 import { useLoaderData, useActionData, Form, Link } from "@remix-run/react";
-import { json, ActionFunctionArgs, LoaderFunctionArgs } from "@remix-run/node";
+import { json, ActionFunctionArgs, LoaderFunctionArgs, redirect } from "@remix-run/node";
 import { supabase } from "~/supabase/supabaseClient";
 import { PageHeader, Card } from "./_layout.produto";
+
+type Categoria = 'Lojinha' | 'Lanchonete' | null;
 
 interface ActionData {
   status: "success" | "error";
@@ -15,7 +17,7 @@ export const loader = async ({ params }: LoaderFunctionArgs) => {
   try {
     const { data: produto, error } = await supabase
       .from("Produto")
-      .select("*")
+      .select("*, Categoria")
       .eq("id", id)
       .single();
 
@@ -34,15 +36,36 @@ export async function action({ request, params }: ActionFunctionArgs) {
   const formData = await request.formData();
 
   const nome = formData.get("nome") as string;
+  const categoria = formData.get("categoria") as Categoria;
   const preco = Number(formData.get("preco"));
   const quantidade = Number(formData.get("quantidade"));
   const disponivel = formData.get("disponivel") === "true";
 
-  if (!nome || !preco || !quantidade || preco <= -0.01 || quantidade < 0) {
+  if (!nome) {
     return json<ActionData>(
       {
         status: "error",
-        message: "Dados inválidos. Verifique o formulário e tente novamente.",
+        message: "Nome do produto é obrigatório.",
+      },
+      { status: 400 }
+    );
+  }
+
+  if (preco <= -0.01) {
+    return json<ActionData>(
+      {
+        status: "error",
+        message: "Preço deve ser maior ou igual a zero.",
+      },
+      { status: 400 }
+    );
+  }
+
+  if (quantidade < 0) {
+    return json<ActionData>(
+      {
+        status: "error",
+        message: "Quantidade deve ser maior ou igual a zero.",
       },
       { status: 400 }
     );
@@ -51,15 +74,18 @@ export async function action({ request, params }: ActionFunctionArgs) {
   try {
     const { error } = await supabase
       .from("Produto")
-      .update({ nome, preco, quantidade, disponivel })
+      .update({ 
+        nome, 
+        Categoria: categoria,
+        preco, 
+        quantidade, 
+        disponivel 
+      })
       .eq("id", id);
 
     if (error) throw error;
 
-    return json<ActionData>({
-      status: "success",
-      message: "Produto atualizado com sucesso!",
-    });
+    return redirect("/produto/visualizar");
   } catch (error) {
     return json<ActionData>(
       {
@@ -73,10 +99,9 @@ export async function action({ request, params }: ActionFunctionArgs) {
 
 export default function ProdutoVisualizarEditar() {
   const { produto, error } = useLoaderData<typeof loader>();
-  const actionData = useActionData<typeof action>();
+  const actionData = useActionData<ActionData>();
   const [isEditing, setIsEditing] = useState(false);
-  const [precoError, setPrecoError] = useState<string | null>(null);
-  const [quantidadeError, setQuantidadeError] = useState<string | null>(null);
+  const [categoria, setCategoria] = useState<Categoria>(produto?.Categoria);
 
   const formatarPreco = (preco: number) => {
     return new Intl.NumberFormat("pt-BR", {
@@ -85,32 +110,14 @@ export default function ProdutoVisualizarEditar() {
     }).format(preco);
   };
 
-  const handlePrecoChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const value = parseFloat(e.target.value);
-    if (value < 0) {
-      setPrecoError("O valor deve ser maior ou igual a 0.");
-    } else {
-      setPrecoError(null);
-    }
-  };
-
-  const handleQuantidadeChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const value = parseInt(e.target.value);
-    if (value < 0) {
-      setQuantidadeError("A quantidade deve ser maior ou igual a 0.");
-    } else {
-      setQuantidadeError(null);
-    }
-  };
-
-  if (error) {
+  if (error || !produto) {
     return (
       <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 py-12 px-4 sm:px-6 lg:px-8">
         <div className="max-w-2xl mx-auto">
           <Card>
             <div className="p-6">
               <div className="bg-red-50 text-red-700 p-4 rounded-lg">
-                {error}
+                {error || "Produto não encontrado"}
               </div>
             </div>
           </Card>
@@ -122,7 +129,6 @@ export default function ProdutoVisualizarEditar() {
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 py-12 px-4 sm:px-6 lg:px-8">
       <div className="max-w-2xl mx-auto">
-        {/* Botão Voltar */}
         <div className="mb-8">
           <Link
             to="/produto/visualizar"
@@ -152,7 +158,6 @@ export default function ProdutoVisualizarEditar() {
         <Card title={isEditing ? "Editar Produto" : "Visualizar Produto"}>
           <div className="p-6">
             <Form method="post" className="space-y-6">
-              {/* Nome do Produto */}
               <div>
                 <label
                   htmlFor="nome"
@@ -171,9 +176,28 @@ export default function ProdutoVisualizarEditar() {
                 />
               </div>
 
-              {/* Grid para Preço e Quantidade */}
+              <div>
+                <label
+                  htmlFor="categoria"
+                  className="block text-sm font-medium text-gray-700 mb-1"
+                >
+                  Categoria
+                </label>
+                <select
+                  id="categoria"
+                  name="categoria"
+                  value={categoria || ""}
+                  onChange={(e) => setCategoria(e.target.value === "" ? null : e.target.value as Categoria)}
+                  disabled={!isEditing}
+                  className="w-full px-4 py-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors bg-gray-50 text-gray-900 disabled:bg-gray-100 disabled:text-gray-500"
+                >
+                  <option value="">Sem categoria</option>
+                  <option value="Lojinha">Lojinha</option>
+                  <option value="Lanchonete">Lanchonete</option>
+                </select>
+              </div>
+
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                {/* Preço */}
                 <div>
                   <label
                     htmlFor="preco"
@@ -187,17 +211,13 @@ export default function ProdutoVisualizarEditar() {
                     name="preco"
                     defaultValue={produto.preco}
                     step="0.50"
+                    min="0"
                     disabled={!isEditing}
                     className="w-full px-4 py-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors bg-gray-50 text-gray-900 disabled:bg-gray-100 disabled:text-gray-500"
-                    onChange={handlePrecoChange}
                     required
                   />
-                  {precoError && (
-                    <p className="mt-1 text-sm text-red-600">{precoError}</p>
-                  )}
                 </div>
 
-                {/* Quantidade */}
                 <div>
                   <label
                     htmlFor="quantidade"
@@ -210,20 +230,14 @@ export default function ProdutoVisualizarEditar() {
                     type="number"
                     name="quantidade"
                     defaultValue={produto.quantidade}
+                    min="0"
                     disabled={!isEditing}
                     className="w-full px-4 py-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors bg-gray-50 text-gray-900 disabled:bg-gray-100 disabled:text-gray-500"
-                    onChange={handleQuantidadeChange}
                     required
                   />
-                  {quantidadeError && (
-                    <p className="mt-1 text-sm text-red-600">
-                      {quantidadeError}
-                    </p>
-                  )}
                 </div>
               </div>
 
-              {/* Valor Total */}
               <div>
                 <label
                   htmlFor="valorTotal"
@@ -241,7 +255,6 @@ export default function ProdutoVisualizarEditar() {
                 </div>
               </div>
 
-              {/* Checkbox Disponível */}
               <div className="flex items-center">
                 <input
                   id="disponivel"
@@ -260,7 +273,6 @@ export default function ProdutoVisualizarEditar() {
                 </label>
               </div>
 
-              {/* Mensagem de Status */}
               {actionData?.message && (
                 <div
                   aria-live="polite"
@@ -303,7 +315,6 @@ export default function ProdutoVisualizarEditar() {
                 </div>
               )}
 
-              {/* Botões de Ação */}
               <div className="flex gap-4">
                 {isEditing ? (
                   <>

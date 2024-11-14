@@ -4,24 +4,47 @@ import { supabase } from "~/supabase/supabaseClient";
 import { LuPencilLine } from "react-icons/lu";
 import { useState } from "react";
 
+interface Produto {
+  id: string;
+  nome: string;
+  categoria: string;
+  preco: number;
+  quantidade: number;
+  disponivel: boolean;
+  totalVendido: number;
+  valorTotalVendido: number;
+}
+
+interface LoaderData {
+  produtos: Produto[];
+  totalProdutos: number;
+  totalVendido: number;
+  valorTotalVendido: number;
+  error: string | null;
+}
+
 export const loader = async () => {
   try {
     const { data: produtos, error } = await supabase
       .from("Produto")
-      .select("*, Categoria")
+      .select("*, (SELECT SUM(quantidade) AS totalVendido, SUM(quantidade * preco) AS valorTotalVendido FROM Venda WHERE Produto.id = Venda.idProduto)")
       .order("created_at", { ascending: false });
 
     if (error) throw error;
 
-    return json({ produtos, error: null });
+    const totalProdutos = produtos.length;
+    const totalVendido = produtos.reduce((total, produto) => total + produto.totalVendido, 0);
+    const valorTotalVendido = produtos.reduce((total, produto) => total + produto.valorTotalVendido, 0);
+
+    return json<LoaderData>({ produtos, totalProdutos, totalVendido, valorTotalVendido, error: null });
   } catch (error) {
     console.error("Erro ao carregar produtos:", error);
-    return json({ produtos: [], error: "Erro ao carregar produtos" });
+    return json<LoaderData>({ produtos: [], totalProdutos: 0, totalVendido: 0, valorTotalVendido: 0, error: "Erro ao carregar produtos" });
   }
 };
 
 export default function VisualizarProdutos() {
-  const { produtos, error } = useLoaderData<typeof loader>();
+  const { produtos, totalProdutos, totalVendido, valorTotalVendido, error } = useLoaderData<LoaderData>();
   const [busca, setBusca] = useState("");
   const [categoria, setCategoria] = useState<string | null>(null);
 
@@ -32,10 +55,9 @@ export default function VisualizarProdutos() {
     }).format(preco);
   };
 
-  // Filtra os produtos com base na busca e categoria
   const produtosFiltrados = produtos.filter(produto =>
     produto.nome.toLowerCase().includes(busca.toLowerCase()) &&
-    (categoria === null || produto.Categoria === categoria)
+    (categoria === null || produto.categoria === categoria)
   );
 
   return (
@@ -44,17 +66,17 @@ export default function VisualizarProdutos() {
         {/* Header */}
         <header className="text-center mb-12">
           <h1 className="text-4xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-blue-600 to-indigo-600 mb-2">
-            Catálogo de Produtos
+            Análise de Produtos
           </h1>
           <p className="text-gray-600 text-lg">
-            Visualização e Análise de Estoque
+            Visão Geral dos Produtos e Desempenho
           </p>
         </header>
 
         {/* Botão Voltar e Campo de Busca */}
         <div className="max-w-7xl mx-auto mb-8 flex flex-col sm:flex-row justify-between items-center gap-4">
           <Link
-            to="/produto"
+            to="/gestao/home"
             className="inline-flex items-center px-4 py-2 text-sm font-medium text-indigo-600 bg-white border border-indigo-600 rounded-lg hover:bg-indigo-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
           >
             <svg
@@ -74,41 +96,52 @@ export default function VisualizarProdutos() {
           </Link>
 
           <div className="relative w-full sm:w-96">
-        <input
-          type="text"
-          placeholder="Buscar produto..."
-          value={busca}
-          onChange={(e) => setBusca(e.target.value)}
-          className="w-full px-4 py-3 text-base bg-white border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
-        />
-        <svg
-          className="absolute right-3 top-3.5 h-5 w-5 text-gray-400"
-          fill="none"
-          stroke="currentColor"
-          viewBox="0 0 24 24"
-        >
-          <path
-            strokeLinecap="round"
-            strokeLinejoin="round"
-            strokeWidth="2"
-            d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"
-          />
-        </svg>
-      </div>
+            <input
+              type="text"
+              placeholder="Buscar produto..."
+              value={busca}
+              onChange={(e) => setBusca(e.target.value)}
+              className="w-full px-4 py-3 text-base bg-white border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
+            />
+            <svg
+              className="absolute right-3 top-3.5 h-5 w-5 text-gray-400"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth="2"
+                d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"
+              />
+            </svg>
+          </div>
         </div>
 
         {/* Container Flex para Reordenar em Telas Pequenas */}
         <div className="flex flex-col-reverse sm:flex-col gap-8">
           {/* Cards de Estatísticas */}
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-6">
-            {/* ... */}
+            <div className="bg-white rounded-2xl shadow-xl p-6">
+              <h3 className="text-lg font-bold mb-2">Total de Produtos</h3>
+              <p className="text-4xl font-bold text-indigo-600">{totalProdutos}</p>
+            </div>
+            <div className="bg-white rounded-2xl shadow-xl p-6">
+              <h3 className="text-lg font-bold mb-2">Total Vendido</h3>
+              <p className="text-4xl font-bold text-indigo-600">{totalVendido}</p>
+            </div>
+            <div className="bg-white rounded-2xl shadow-xl p-6">
+              <h3 className="text-lg font-bold mb-2">Valor Total Vendido</h3>
+              <p className="text-4xl font-bold text-indigo-600">{formatarPreco(valorTotalVendido)}</p>
+            </div>
           </div>
 
           {/* Tabela de Produtos */}
           <div className="bg-white rounded-2xl shadow-xl overflow-hidden">
             <div className="bg-gradient-to-r from-blue-500 to-indigo-600 px-6 py-4 flex justify-between items-center">
               <h2 className="text-xl font-semibold text-white">
-                Lista Completa de Produtos
+                Lista de Produtos
               </h2>
               <div className="flex gap-2">
                 <button
@@ -168,7 +201,10 @@ export default function VisualizarProdutos() {
                         Quantidade
                       </th>
                       <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                        Valor Total
+                        Total Vendido
+                      </th>
+                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                        Valor Total Vendido
                       </th>
                       <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                         Status
@@ -188,7 +224,7 @@ export default function VisualizarProdutos() {
                         </td>
                         <td className="px-6 py-4 whitespace-nowrap">
                           <div className="text-sm text-gray-900">
-                            {produto.Categoria || 'Sem categoria'}
+                            {produto.categoria || 'Sem categoria'}
                           </div>
                         </td>
                         <td className="px-6 py-4 whitespace-nowrap">
@@ -203,7 +239,12 @@ export default function VisualizarProdutos() {
                         </td>
                         <td className="px-6 py-4 whitespace-nowrap">
                           <div className="text-sm text-gray-900">
-                            {formatarPreco(produto.preco * produto.quantidade)}
+                            {produto.totalVendido}
+                          </div>
+                        </td>
+                        <td className="px-6 py-4 whitespace-nowrap">
+                          <div className="text-sm text-gray-900">
+                            {formatarPreco(produto.valorTotalVendido)}
                           </div>
                         </td>
                         <td className="px-6 py-4 whitespace-nowrap">

@@ -101,10 +101,10 @@ export default function ProdutosDashboard() {
                 </svg>
               </div>
               <h2 className="text-xl font-semibold text-gray-800 mb-2">
-                Visualizar Produtos
+                Visualizar e Editar Produtos
               </h2>
               <p className="text-gray-600">
-                Consulte detalhes do seu catálogo de produtos.
+                Consulte detalhes do seu catálogo de produtos e altualize detalhamentos.
               </p>
             </div>
           </Link>
