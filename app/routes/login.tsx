@@ -1,44 +1,42 @@
-import { useState, FormEvent } from "react";
-import { useNavigate } from "@remix-run/react";
-import { supabase } from "~/supabase/supabaseClient";
+import { type ActionFunctionArgs, redirect } from "@remix-run/node";
+import { Form, useActionData } from "@remix-run/react";
+import { useState } from "react";
 import { Eye, EyeOff } from "lucide-react";
+import { supabase } from "~/supabase/supabaseClient";
 
-const LoginPage = () => {
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState("");
-  const [showPassword, setShowPassword] = useState(false);
-  const navigate = useNavigate();
+export async function action({ request }: ActionFunctionArgs) {
+  const formData = await request.formData();
+  const email = formData.get("email") as string;
+  const password = formData.get("password") as string;
 
-  const handleLogin = async (e: FormEvent<HTMLFormElement>) => {
-    e.preventDefault();
-    setLoading(true);
-    setError("");
-
-    try {
-      const { data, error: signInError } =
-        await supabase.auth.signInWithPassword({
-          email,
-          password,
-        });
-
-      if (signInError) throw signInError;
-
-      if (data?.user) {
-        navigate("/home");
+  try {
+    const { data, error: signInError } = await supabase.auth.signInWithPassword(
+      {
+        email,
+        password,
       }
-    } catch (err) {
-      const error = err as Error;
-      setError(
+    );
+
+    if (signInError) throw signInError;
+
+    if (data?.user) {
+      return redirect("/home");
+    }
+  } catch (err) {
+    const error = err as Error;
+    return {
+      error:
         error.message === "Invalid login credentials"
           ? "Email ou senha inválidos"
-          : "Ocorreu um erro ao fazer login. Tente novamente."
-      );
-    } finally {
-      setLoading(false);
-    }
-  };
+          : "Ocorreu um erro ao fazer login. Tente novamente.",
+    };
+  }
+}
+
+const LoginPage = () => {
+  const actionData = useActionData<typeof action>();
+  const [showPassword, setShowPassword] = useState(false);
+  const [email, setEmail] = useState("");
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 flex flex-col items-center justify-center p-4">
@@ -53,8 +51,8 @@ const LoginPage = () => {
         </div>
 
         <div className="bg-white rounded-2xl shadow-xl p-8 space-y-6">
-          <form onSubmit={handleLogin} className="space-y-6">
-            {error && (
+          <Form method="post" className="space-y-6">
+            {actionData?.error && (
               <div className="p-4 bg-red-50 border border-red-200 rounded-lg flex items-center space-x-2">
                 <svg
                   className="h-5 w-5 text-red-500"
@@ -69,7 +67,7 @@ const LoginPage = () => {
                     d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
                   />
                 </svg>
-                <p className="text-sm text-red-600">{error}</p>
+                <p className="text-sm text-red-600">{actionData.error}</p>
               </div>
             )}
 
@@ -82,6 +80,7 @@ const LoginPage = () => {
               </label>
               <input
                 id="email"
+                name="email"
                 type="email"
                 required
                 value={email}
@@ -119,10 +118,9 @@ const LoginPage = () => {
               <div className="relative">
                 <input
                   id="password"
+                  name="password"
                   type={showPassword ? "text" : "password"}
                   required
-                  value={password}
-                  onChange={(e) => setPassword(e.target.value)}
                   className="w-full px-4 py-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-gray-50 text-gray-900 pr-10"
                   placeholder="••••••••"
                 />
@@ -142,12 +140,11 @@ const LoginPage = () => {
 
             <button
               type="submit"
-              disabled={loading}
-              className="w-full bg-gradient-to-r from-blue-600 to-indigo-600 text-white py-3 px-6 rounded-lg font-medium hover:from-blue-700 hover:to-indigo-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transform transition-all duration-200 hover:scale-[1.02] disabled:opacity-50 disabled:cursor-not-allowed"
+              className="w-full bg-gradient-to-r from-blue-600 to-indigo-600 text-white py-3 px-6 rounded-lg font-medium hover:from-blue-700 hover:to-indigo-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transform transition-all duration-200 hover:scale-[1.02]"
             >
-              {loading ? "Entrando..." : "Entrar"}
+              Entrar
             </button>
-          </form>
+          </Form>
         </div>
       </div>
 

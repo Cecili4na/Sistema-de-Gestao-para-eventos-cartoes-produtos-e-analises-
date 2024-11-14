@@ -1,30 +1,19 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
-import { useEffect } from "react";
-import { useNavigate } from "@remix-run/react";
+import { redirect } from "@remix-run/node";
 import { supabase } from "~/supabase/supabaseClient";
 
-type ProtectedPageProps = {
-  children: React.ReactNode;
-};
+export async function requireAuth(request: Request) {
+  try {
+    const {
+      data: { user },
+    } = await supabase.auth.getUser();
 
-function ProtectedPage({ children }: ProtectedPageProps) {
-  const navigate = useNavigate();
+    if (!user) {
+      throw redirect("/login");
+    }
 
-  useEffect(() => {
-    const checkUserSession = async () => {
-      const {
-        data: { user },
-      } = await supabase.auth.getUser();
-
-      if (!user) {
-        navigate("/login");
-      }
-    };
-
-    checkUserSession();
-  }, [navigate]);
-
-  return <>{children}</>;
+    return user;
+  } catch (error) {
+    throw redirect("/login");
+  }
 }
-
-export default ProtectedPage;
