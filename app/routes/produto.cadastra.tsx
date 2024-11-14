@@ -14,6 +14,8 @@ export const meta = () => {
   ];
 };
 
+type Categoria = 'Lojinha' | 'Lanchonete' | null;
+
 interface ActionData {
   status: "success" | "error";
   message: string;
@@ -25,6 +27,8 @@ export async function action({ request }: ActionFunctionArgs) {
   const preco = Number(formData.get("preco"));
   const quantidade = Number(formData.get("quantidade"));
   const disponivel = formData.get("disponivel") === "true";
+  const categoriaValue = formData.get("Categoria") as string; // Updated to match the correct column name
+  const categoria = categoriaValue === "" ? null : categoriaValue as Categoria;
 
   if (!nome || !preco || !quantidade || preco <= -0.01 || quantidade < 0) {
     return json<ActionData>(
@@ -38,8 +42,14 @@ export async function action({ request }: ActionFunctionArgs) {
 
   try {
     const { error } = await supabase
-      .from("Produto")
-      .insert([{ nome, preco, quantidade, disponivel }]);
+      .from('Produto')
+      .insert([{
+        nome,
+        preco,
+        quantidade,
+        disponivel,
+        Categoria: categoria // Updated to match the correct column name
+      }]);
 
     if (error) throw error;
 
@@ -48,6 +58,7 @@ export async function action({ request }: ActionFunctionArgs) {
       message: "Produto cadastrado com sucesso!",
     });
   } catch (error) {
+    console.error("Erro ao cadastrar:", error);
     return json<ActionData>(
       {
         status: "error",
@@ -62,6 +73,7 @@ export default function Produto() {
   const actionData = useActionData<typeof action>();
   const [precoError, setPrecoError] = useState<string | null>(null);
   const [quantidadeError, setQuantidadeError] = useState<string | null>(null);
+  const [categoria, setCategoria] = useState<Categoria>(null);
 
   const handlePrecoChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const value = parseFloat(e.target.value);
@@ -109,9 +121,27 @@ export default function Produto() {
                 />
               </div>
 
-              {/* Grid para Preço e Quantidade */}
+              <div>
+                <label 
+                  htmlFor="Categoria" // Updated to match the correct column name
+                  className="block text-sm font-medium text-gray-700 mb-1"
+                >
+                  Categoria (opcional)
+                </label>
+                <select
+                  id="Categoria" // Updated to match the correct column name
+                  name="Categoria" // Updated to match the correct column name
+                  value={categoria ?? ""}
+                  onChange={(e) => setCategoria(e.target.value === "" ? null : e.target.value as Categoria)}
+                  className="w-full px-4 py-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors bg-gray-50 text-gray-900"
+                >
+                  <option value="">Sem categoria</option>
+                  <option value="Lojinha">Lojinha</option>
+                  <option value="Lanchonete">Lanchonete</option>
+                </select>
+              </div>
+
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                {/* Preço */}
                 <div>
                   <label
                     htmlFor="preco"
@@ -124,7 +154,8 @@ export default function Produto() {
                     type="number"
                     name="preco"
                     placeholder="0,00"
-                    step="0.50"
+                    step="0.01"
+                    min="0"
                     className="w-full px-4 py-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors bg-gray-50 text-gray-900"
                     onChange={handlePrecoChange}
                     required
@@ -134,7 +165,6 @@ export default function Produto() {
                   )}
                 </div>
 
-                {/* Quantidade */}
                 <div>
                   <label
                     htmlFor="quantidade"
@@ -147,25 +177,24 @@ export default function Produto() {
                     type="number"
                     name="quantidade"
                     placeholder="0"
+                    min="0"
                     className="w-full px-4 py-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors bg-gray-50 text-gray-900"
                     onChange={handleQuantidadeChange}
                     required
                   />
                   {quantidadeError && (
-                    <p className="mt-1 text-sm text-red-600">
-                      {quantidadeError}
-                    </p>
+                    <p className="mt-1 text-sm text-red-600">{quantidadeError}</p>
                   )}
                 </div>
               </div>
 
-              {/* Checkbox Disponível */}
               <div className="flex items-center">
                 <input
                   id="disponivel"
                   type="checkbox"
                   name="disponivel"
                   value="true"
+                  defaultChecked
                   className="h-5 w-5 text-blue-600 focus:ring-blue-500 border-gray-300 rounded cursor-pointer"
                 />
                 <label
@@ -176,7 +205,6 @@ export default function Produto() {
                 </label>
               </div>
 
-              {/* Mensagem de Status */}
               {actionData?.message && (
                 <div
                   aria-live="polite"
@@ -219,7 +247,6 @@ export default function Produto() {
                 </div>
               )}
 
-              {/* Botão Submit */}
               <button
                 type="submit"
                 className="w-full bg-gradient-to-r from-blue-600 to-indigo-600 text-white py-3 px-6 rounded-lg font-medium hover:from-blue-700 hover:to-indigo-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transform transition-all duration-200 hover:scale-[1.02]"
