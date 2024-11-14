@@ -91,7 +91,7 @@ const LandingPage = () => {
 
       {/* Footer */}
       <div className="absolute bottom-4 text-center text-gray-600 text-sm">
-        <p>© 2024 AcutisDataModos</p>
+        <p>© AcutisDataModos</p>
       </div>
     </div>
   );

@@ -32,43 +32,50 @@ export default function Home() {
           {/* Background Pattern */}
           <div className="absolute inset-0">
             <div className="absolute inset-0 bg-gradient-to-r from-blue-600 to-indigo-600 opacity-90"></div>
-            <div className="absolute inset-0 bg-[url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNjAiIGhlaWdodD0iNjAiIHZpZXdCb3g9IjAgMCA2MCA2MCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48ZyBmaWxsPSJub25lIiBmaWxsLXJ1bGU9ImV2ZW5vZGQiPjxwYXRoIGQ9Ik0zNiAxOGMzLjMxNCAwIDYtMi42ODYgNi02cy0yLjY4Ni02LTYtNi02IDIuNjg2LTYgNiAyLjY4NiA2IDYgNnptMCAzMGMzLjMxNCAwIDYtMi42ODYgNi02cy0yLjY4Ni02LTYtNi02IDIuNjg2LTYgNiAyLjY4NiA2IDYgNnptLTE4LTZjMy4zMTQgMCA2LTIuNjg2IDYtNnMtMi42ODYtNi02LTYtNiAyLjY4Ni02IDYgMi42ODYgNiA2IDZ6Ii8+PC9nPjwvc3ZnPg==')] opacity-10"></div>
           </div>
 
-          <div className="relative px-4 py-12 sm:px-6 lg:px-8">
+          <div className="relative px-4 py-16 sm:px-6 lg:px-8">
             <div className="max-w-7xl mx-auto text-center">
-              <div className="relative">
-                <img
-                  src="/logo.png"
-                  alt="AcutisDataModos Logo"
-                  className="h-16 mb-4 mx-auto transform hover:scale-105 transition-transform duration-300"
-                />
-                <div className="absolute -inset-0.5 bg-white/30 blur rounded-full opacity-50"></div>
-              </div>
-              <h1 className="text-4xl sm:text-5xl font-extrabold text-white mb-4 tracking-tight">
+              <img
+                src="/logo.png"
+                alt="AcutisDataModos Logo"
+                className="h-24 mb-8 mx-auto"
+              />
+              <h1 className="text-4xl sm:text-6xl font-extrabold text-white mb-6">
                 AcutisDataModos
               </h1>
-              <p className="text-lg sm:text-xl text-blue-100 max-w-2xl mx-auto mb-6 leading-relaxed font-light">
-                Somos uma plataforma de gestão para eventos católicos,
-                desenvolvida com base no legado digital do nosso baluarte beato
-                Carlos Acutis.
+              <p className="text-lg sm:text-xl text-blue-100 max-w-3xl mx-auto mb-8">
+                Somos uma plataforma de gestão para eventos católicos e buscamos
+                ajudar pessoas através da tecnologia, seguindo o nosso baluarte
+                beato Carlo&nbsp;Acutis.
               </p>
             </div>
           </div>
 
-          {/* Decorative Elements */}
-          <div className="absolute top-6 left-6 w-16 h-16 border-t-2 border-l-2 border-blue-200 opacity-20"></div>
-          <div className="absolute bottom-6 right-6 w-16 h-16 border-b-2 border-r-2 border-blue-200 opacity-20"></div>
+          <div className="absolute bottom-0 w-full">
+            <svg
+              viewBox="0 0 1440 120"
+              fill="none"
+              xmlns="http://www.w3.org/2000/svg"
+            >
+              <path
+                d="M0 0L48 8.85C96 17.7 192 35.4 288 53.1C384 70.8 480 88.5 576 88.5C672 88.5 768 70.8 864 61.95C960 53.1 1056 53.1 1152 61.95C1248 70.8 1344 88.5 1392 97.35L1440 106.2V120H1392C1344 120 1248 120 1152 120C1056 120 960 120 864 120C768 120 672 120 576 120C480 120 384 120 288 120C192 120 96 120 48 120H0V0Z"
+                fill="#f0f7ff"
+              />
+            </svg>
+          </div>
         </div>
 
-        {/* Seção de Funcionalidades */}
-        <div className="max-w-7xl mx-auto px-4 py-16 sm:px-6 lg:px-8 relative -mt-8">
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 gap-8 mb-16">
-            {/* Card Produtos */}
-            <div className="bg-white rounded-2xl p-8 shadow-xl hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-1 group">
-              <div className="h-14 w-14 bg-gradient-to-br from-blue-100 to-blue-200 rounded-xl flex items-center justify-center mb-6 group-hover:scale-110 transition-transform duration-300">
+        <div className="max-w-7xl mx-auto px-4 py-12 sm:px-6 lg:px-8">
+          <h2 className="text-3xl font-bold text-center text-indigo-600 mb-12">
+            Funcionalidades Principais
+          </h2>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+            <div className="bg-white rounded-2xl p-8 shadow-lg hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1">
+              <div className="h-12 w-12 bg-blue-100 rounded-xl flex items-center justify-center mb-6">
                 <svg
-                  className="h-7 w-7 text-blue-600"
+                  className="h-6 w-6 text-blue-600"
                   fill="none"
                   stroke="currentColor"
                   viewBox="0 0 24 24"
@@ -81,19 +88,18 @@ export default function Home() {
                   />
                 </svg>
               </div>
-              <h3 className="text-2xl font-bold text-gray-900 mb-4">
-                Produtos
-              </h3>
-              <p className="text-gray-600 text-lg mb-6">
-                Adicione, edite e visualize os produtos do seu encontro aqui.
+              <h3 className="text-xl font-bold text-gray-900 mb-4">Produtos</h3>
+              <p className="text-gray-600 mb-6">
+                Adicione, edite e visualize os produtos do seu encontro de forma
+                simples e intuitiva.
               </p>
               <Link
                 to="/produto"
-                className="inline-flex items-center text-blue-600 hover:text-blue-700 text-lg group-hover:translate-x-2 transition-transform duration-300"
+                className="inline-flex items-center text-blue-600 hover:text-blue-700 group"
               >
                 Acessar
                 <svg
-                  className="ml-2 w-5 h-5"
+                  className="ml-2 w-4 h-4 transform transition-transform group-hover:translate-x-1"
                   fill="none"
                   stroke="currentColor"
                   viewBox="0 0 24 24"
@@ -108,11 +114,10 @@ export default function Home() {
               </Link>
             </div>
 
-            {/* Card Cartões */}
-            <div className="bg-white rounded-2xl p-8 shadow-xl hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-1 group">
-              <div className="h-14 w-14 bg-gradient-to-br from-indigo-100 to-indigo-200 rounded-xl flex items-center justify-center mb-6 group-hover:scale-110 transition-transform duration-300">
+            <div className="bg-white rounded-2xl p-8 shadow-lg hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1">
+              <div className="h-12 w-12 bg-indigo-100 rounded-xl flex items-center justify-center mb-6">
                 <svg
-                  className="h-7 w-7 text-indigo-600"
+                  className="h-6 w-6 text-indigo-600"
                   fill="none"
                   stroke="currentColor"
                   viewBox="0 0 24 24"
@@ -121,28 +126,22 @@ export default function Home() {
                     strokeLinecap="round"
                     strokeLinejoin="round"
                     strokeWidth="2"
-                    d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"
-                  />
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth="2"
-                    d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"
+                    d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z"
                   />
                 </svg>
               </div>
-              <h3 className="text-2xl font-bold text-gray-900 mb-4">Cartões</h3>
-              <p className="text-gray-600 text-lg mb-6">
-                Gerencie cartões: adicione, edite, recarregue, debite e
-                acompanhe saldos.
+              <h3 className="text-xl font-bold text-gray-900 mb-4">Cartões</h3>
+              <p className="text-gray-600 mb-6">
+                Gerencie cartões do evento: adicione, edite, recarregue, debite
+                e credite com facilidade.
               </p>
               <Link
                 to="/cartao"
-                className="inline-flex items-center text-indigo-600 hover:text-indigo-700 text-lg group-hover:translate-x-2 transition-transform duration-300"
+                className="inline-flex items-center text-indigo-600 hover:text-indigo-700 group"
               >
                 Acessar
                 <svg
-                  className="ml-2 w-5 h-5"
+                  className="ml-2 w-4 h-4 transform transition-transform group-hover:translate-x-1"
                   fill="none"
                   stroke="currentColor"
                   viewBox="0 0 24 24"
@@ -157,11 +156,10 @@ export default function Home() {
               </Link>
             </div>
 
-            {/* Card Pedidos */}
-            <div className="bg-white rounded-2xl p-8 shadow-xl hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-1 group">
-              <div className="h-14 w-14 bg-gradient-to-br from-purple-100 to-purple-200 rounded-xl flex items-center justify-center mb-6 group-hover:scale-110 transition-transform duration-300">
+            <div className="bg-white rounded-2xl p-8 shadow-lg hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1">
+              <div className="h-12 w-12 bg-indigo-100 rounded-xl flex items-center justify-center mb-6">
                 <svg
-                  className="h-7 w-7 text-purple-600"
+                  className="h-6 w-6 text-indigo-600"
                   fill="none"
                   stroke="currentColor"
                   viewBox="0 0 24 24"
@@ -170,21 +168,22 @@ export default function Home() {
                     strokeLinecap="round"
                     strokeLinejoin="round"
                     strokeWidth="2"
-                    d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"
+                    d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4"
                   />
                 </svg>
               </div>
-              <h3 className="text-2xl font-bold text-gray-900 mb-4">Pedidos</h3>
-              <p className="text-gray-600 text-lg mb-6">
-                Visualize e gerencie os pedidos vigentes com facilidade.
+              <h3 className="text-xl font-bold text-gray-900 mb-4">Pedidos</h3>
+              <p className="text-gray-600 mb-6">
+                Acompanhe e gerencie todos os pedidos vigentes do seu evento em
+                tempo real.
               </p>
               <Link
-                to="/pedidos"
-                className="inline-flex items-center text-purple-600 hover:text-purple-700 text-lg group-hover:translate-x-2 transition-transform duration-300"
+                to="/pedido"
+                className="inline-flex items-center text-indigo-600 hover:text-indigo-700 group"
               >
                 Acessar
                 <svg
-                  className="ml-2 w-5 h-5"
+                  className="ml-2 w-4 h-4 transform transition-transform group-hover:translate-x-1"
                   fill="none"
                   stroke="currentColor"
                   viewBox="0 0 24 24"
@@ -199,11 +198,10 @@ export default function Home() {
               </Link>
             </div>
 
-            {/* Card Gestão */}
-            <div className="bg-white rounded-2xl p-8 shadow-xl hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-1 group">
-              <div className="h-14 w-14 bg-gradient-to-br from-green-100 to-green-200 rounded-xl flex items-center justify-center mb-6 group-hover:scale-110 transition-transform duration-300">
+            <div className="bg-white rounded-2xl p-8 shadow-lg hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1">
+              <div className="h-12 w-12 bg-purple-100 rounded-xl flex items-center justify-center mb-6">
                 <svg
-                  className="h-7 w-7 text-green-600"
+                  className="h-6 w-6 text-purple-600"
                   fill="none"
                   stroke="currentColor"
                   viewBox="0 0 24 24"
@@ -216,18 +214,18 @@ export default function Home() {
                   />
                 </svg>
               </div>
-              <h3 className="text-2xl font-bold text-gray-900 mb-4">Gestão</h3>
-              <p className="text-gray-600 text-lg mb-6">
-                Acompanhe lucros, histórico de vendas e analise métricas
-                importantes.
+              <h3 className="text-xl font-bold text-gray-900 mb-4">Gestão</h3>
+              <p className="text-gray-600 mb-6">
+                Acesse análises detalhadas: histórico de vendas, lucros e
+                métricas importantes.
               </p>
               <Link
-                to="/produto/visualizar"
-                className="inline-flex items-center text-green-600 hover:text-green-700 text-lg group-hover:translate-x-2 transition-transform duration-300"
+                to="/gestao/auth"
+                className="inline-flex items-center text-purple-600 hover:text-purple-700 group"
               >
                 Acessar
                 <svg
-                  className="ml-2 w-5 h-5"
+                  className="ml-2 w-4 h-4 transform transition-transform group-hover:translate-x-1"
                   fill="none"
                   stroke="currentColor"
                   viewBox="0 0 24 24"
@@ -241,6 +239,10 @@ export default function Home() {
                 </svg>
               </Link>
             </div>
+          </div>
+
+          <div className="mt-16 text-center">
+            <p className="text-gray-600 italic">© AcutisDataModos</p>
           </div>
         </div>
       </div>
