@@ -1,7 +1,8 @@
 import { useState } from "react";
 import { json, redirect } from "@remix-run/node";
-import { Form, useActionData} from "@remix-run/react";
+import { Form, useActionData } from "@remix-run/react";
 import type { ActionFunction } from "@remix-run/node";
+import { BackButton } from "~/components/BackButton";
 
 const SENHA_GESTAO = "acutis2024";
 
@@ -16,7 +17,8 @@ export const action: ActionFunction = async ({ request }) => {
   if (senha === SENHA_GESTAO) {
     return redirect("/gestao/home", {
       headers: {
-        "Set-Cookie": "gestao_auth=true; Path=/; HttpOnly; Max-Age=3600; SameSite=Lax",
+        "Set-Cookie":
+          "gestao_auth=true; Path=/; HttpOnly; Max-Age=3600; SameSite=Lax",
       },
     });
   }
@@ -32,6 +34,7 @@ export default function GestaoAuth() {
     <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 flex justify-center items-center py-12 px-4 sm:px-6 lg:px-8">
       <div className="max-w-md w-full space-y-8">
         <div className="bg-white rounded-2xl shadow-xl p-8">
+          <BackButton to="/home" />
           <div className="text-center mb-8">
             <h2 className="text-3xl font-bold text-gray-900">Área de Gestão</h2>
             <p className="mt-2 text-gray-600">
@@ -68,12 +71,6 @@ export default function GestaoAuth() {
               className="w-full bg-gradient-to-r from-blue-600 to-indigo-600 text-white py-2 px-4 rounded-lg font-medium hover:from-blue-700 hover:to-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transform transition-all duration-200 hover:scale-[1.02]"
             >
               Acessar
-            </button>
-            <button
-              type="button"
-              className="w-full bg-gradient-to-r from-blue-600 to-indigo-600 text-white py-2 px-4 rounded-lg font-medium hover:from-blue-700 hover:to-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transform transition-all duration-200 hover:scale-[1.02]"
-            >
-              Voltar
             </button>
           </Form>
         </div>

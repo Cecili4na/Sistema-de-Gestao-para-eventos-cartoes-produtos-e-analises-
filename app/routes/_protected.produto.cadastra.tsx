@@ -3,6 +3,7 @@ import { useActionData, Form } from "@remix-run/react";
 import { json, ActionFunctionArgs } from "@remix-run/node";
 import { supabase } from "~/supabase/supabaseClient";
 import { PageHeader, Card } from "./_layout.produto";
+import { BackButton } from "~/components/BackButton";
 
 export const meta = () => {
   return [
@@ -14,7 +15,7 @@ export const meta = () => {
   ];
 };
 
-type Categoria = 'Lojinha' | 'Lanchonete' | null;
+type Categoria = "Lojinha" | "Lanchonete" | null;
 
 interface ActionData {
   status: "success" | "error";
@@ -28,7 +29,8 @@ export async function action({ request }: ActionFunctionArgs) {
   const quantidade = Number(formData.get("quantidade"));
   const disponivel = formData.get("disponivel") === "true";
   const categoriaValue = formData.get("Categoria") as string; // Updated to match the correct column name
-  const categoria = categoriaValue === "" ? null : categoriaValue as Categoria;
+  const categoria =
+    categoriaValue === "" ? null : (categoriaValue as Categoria);
 
   if (!nome || !preco || !quantidade || preco <= -0.01 || quantidade < 0) {
     return json<ActionData>(
@@ -41,15 +43,15 @@ export async function action({ request }: ActionFunctionArgs) {
   }
 
   try {
-    const { error } = await supabase
-      .from('Produto')
-      .insert([{
+    const { error } = await supabase.from("Produto").insert([
+      {
         nome,
         preco,
         quantidade,
         disponivel,
-        Categoria: categoria // Updated to match the correct column name
-      }]);
+        Categoria: categoria, // Updated to match the correct column name
+      },
+    ]);
 
     if (error) throw error;
 
@@ -96,6 +98,7 @@ export default function Produto() {
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 py-12 px-4 sm:px-6 lg:px-8">
       <div className="max-w-2xl mx-auto">
+        <BackButton to="/produto" />
         <PageHeader
           title="Acutis Data Modos"
           subtitle="Sistema de Gestão de Produtos"
@@ -122,7 +125,7 @@ export default function Produto() {
               </div>
 
               <div>
-                <label 
+                <label
                   htmlFor="Categoria" // Updated to match the correct column name
                   className="block text-sm font-medium text-gray-700 mb-1"
                 >
@@ -132,7 +135,13 @@ export default function Produto() {
                   id="Categoria" // Updated to match the correct column name
                   name="Categoria" // Updated to match the correct column name
                   value={categoria ?? ""}
-                  onChange={(e) => setCategoria(e.target.value === "" ? null : e.target.value as Categoria)}
+                  onChange={(e) =>
+                    setCategoria(
+                      e.target.value === ""
+                        ? null
+                        : (e.target.value as Categoria)
+                    )
+                  }
                   className="w-full px-4 py-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors bg-gray-50 text-gray-900"
                 >
                   <option value="">Sem categoria</option>
@@ -183,7 +192,9 @@ export default function Produto() {
                     required
                   />
                   {quantidadeError && (
-                    <p className="mt-1 text-sm text-red-600">{quantidadeError}</p>
+                    <p className="mt-1 text-sm text-red-600">
+                      {quantidadeError}
+                    </p>
                   )}
                 </div>
               </div>
