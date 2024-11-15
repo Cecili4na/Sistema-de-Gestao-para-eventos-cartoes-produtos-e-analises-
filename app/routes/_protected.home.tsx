@@ -8,7 +8,7 @@ import { MenuCard } from "~/components/MenuCard";
 export async function action({ request }: ActionFunctionArgs) {
   try {
     await supabase.auth.signOut();
-    return redirect("/login");
+    return redirect("/");
   } catch (error) {
     console.error("Erro ao fazer logout:", error);
     return redirect("/login");
@@ -30,7 +30,7 @@ export default function Home() {
       </Form>
 
       {/* Hero Section com Design Moderno */}
-      <div className="relative overflow-hidden">
+      <div className="relative overflow-hidden -mt-5">
         {/* Background Pattern */}
         <div className="absolute inset-0">
           <div className="absolute inset-0 bg-gradient-to-r from-blue-600 to-indigo-600 opacity-90"></div>
@@ -41,7 +41,7 @@ export default function Home() {
             <img
               src="/logo.png"
               alt="AcutisDataModos Logo"
-              className="h-24 mb-8 mx-auto"
+              className="h-24 mb-4 mx-auto"
             />
             <h1 className="text-4xl sm:text-6xl font-extrabold text-white mb-6">
               AcutisDataModos
@@ -59,10 +59,12 @@ export default function Home() {
             viewBox="0 0 1440 120"
             fill="none"
             xmlns="http://www.w3.org/2000/svg"
+            className="w-full h-auto"
+            preserveAspectRatio="none"
           >
             <path
               d="M0 0L48 8.85C96 17.7 192 35.4 288 53.1C384 70.8 480 88.5 576 88.5C672 88.5 768 70.8 864 61.95C960 53.1 1056 53.1 1152 61.95C1248 70.8 1344 88.5 1392 97.35L1440 106.2V120H1392C1344 120 1248 120 1152 120C1056 120 960 120 864 120C768 120 672 120 576 120C480 120 384 120 288 120C192 120 96 120 48 120H0V0Z"
-              fill="#f0f7ff"
+              fill="#E7EEFF"
             />
           </svg>
         </div>
