@@ -58,7 +58,7 @@ export default function GestaoHome() {
           />
 
           <MenuCard
-            to="/vendas"
+            to="/gestao/listarVendas"
             icon={
               <svg
                 className="h-6 w-6 text-green-600"
@@ -82,7 +82,7 @@ export default function GestaoHome() {
           />
 
           <MenuCard
-            to="/gestao/produtos"
+            to="/gestao/visualizarProdutos"
             icon={
               <svg
                 className="h-6 w-6 text-purple-600"

@@ -1,57 +1,39 @@
-import { Link, useLoaderData } from "@remix-run/react";
-import { json } from "@remix-run/node";
-import { supabase } from "~/supabase/supabaseClient";
-import { LuPlusCircle, LuMinusCircle } from "react-icons/lu";
-import { ActionCard } from "~/components/ActionCard";
+import { Link } from "@remix-run/react";
 import { BackButton } from "~/components/BackButton";
 
-export const loader = async () => {
-  try {
-    const { data: cartoes, error } = await supabase
-      .from("Card")
-      .select("*")
-      .order("created_at", { ascending: false })
-      .limit(5);
-
-    if (error) throw error;
-
-    return json({ cartoes, error: null });
-  } catch (error) {
-    console.error("Erro ao carregar cartões:", error);
-    return json({ cartoes: [], error: "Erro ao carregar cartões" });
-  }
-};
-
-export default function CartaoDashboard() {
-  const { cartoes, error } = useLoaderData<typeof loader>();
-
-  const formatarSaldo = (saldo: number) => {
-    return new Intl.NumberFormat("pt-BR", {
-      style: "currency",
-      currency: "BRL",
-    }).format(saldo);
-  };
-
+export default function Home() {
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 py-12 px-4 sm:px-6 lg:px-8">
-      <div className="max-w-7xl mx-auto">
-        {/* Botão Voltar */}
-        <BackButton to="/home" />
+    <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100">
+      <div className="relative overflow-hidden">
+        <div className="absolute inset-0">
+          <div className="absolute inset-0 bg-gradient-to-r from-blue-600 to-indigo-600 opacity-90"></div>
+        </div>
+        <div className="relative px-4 py-16 sm:px-6 lg:px-8">
+          <div className="max-w-7xl mx-auto text-center">
+          <div className="flex justify-start mb-8">
+              <BackButton to="/home" />
+            </div>
+            <h1 className="text-4xl sm:text-6xl font-extrabold text-white mb-8">
+              Gestão de Cartões
+            </h1>
+            
+            <p className="text-lg sm:text-xl text-blue-100 max-w-3xl mx-auto mb-12">
+              Gerencie todos os cartões do seu evento de forma simples e eficiente.
+            </p>
+          </div>
+        </div>
+      </div>
 
-        {/* Header */}
-        <header className="text-center mb-12">
-          <h1 className="text-4xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-blue-600 to-indigo-600 mb-2">
-            Acutis Data Modos
-          </h1>
-          <p className="text-gray-600 text-lg">Sistema de Gestão de Cartões</p>
-        </header>
-
-        {/* Cards de Ação Principais */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-12">
-          <ActionCard
-            to="/cartao/cadastrar"
-            icon={
-              <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+      <div className="max-w-7xl mx-auto px-4 py-16 sm:px-6 lg:px-8">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+          <div className="bg-white rounded-2xl p-8 shadow-lg hover:shadow-xl transition-shadow">
+            <div className="h-12 w-12 bg-blue-100 rounded-xl flex items-center justify-center mb-6">
+              <svg
+                className="h-6 w-6 text-blue-600"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
                 <path
                   strokeLinecap="round"
                   strokeLinejoin="round"
@@ -59,109 +41,125 @@ export default function CartaoDashboard() {
                   d="M12 6v6m0 0v6m0-6h6m-6 0H6"
                 />
               </svg>
-            }
-            title="Cadastrar Novo Cartão"
-            description="Adicione novos cartões ao sistema."
-          />
-
-          <ActionCard
-            to="/cartao/recarregar"
-            icon={<LuPlusCircle className="w-6 h-6 text-green-600" />}
-            title="Recarregar Cartão"
-            description="Adicione créditos a um cartão existente."
-            iconBgColor="bg-green-100"
-            iconHoverBgColor="group-hover:bg-green-200"
-            iconColor="text-green-600"
-          />
-
-          <ActionCard
-            to="/cartao/debitar"
-            icon={<LuMinusCircle className="w-6 h-6 text-red-600" />}
-            title="Debitar Cartão"
-            description="Realize débitos em cartões existentes."
-            iconBgColor="bg-red-100"
-            iconHoverBgColor="group-hover:bg-red-200"
-            iconColor="text-red-600"
-          />
-        </div>
-
-        {/* Seção de Últimos Cartões */}
-        <div className="bg-white rounded-2xl shadow-xl overflow-hidden">
-          <div className="bg-gradient-to-r from-blue-500 to-indigo-600 px-6 py-4">
-            <h2 className="text-xl font-semibold text-white">
-              Últimos Cartões Cadastrados
-            </h2>
+            </div>
+            <h3 className="text-xl font-bold text-gray-900 mb-4">
+              Cadastrar Cartão
+            </h3>
+            <p className="text-gray-600 mb-6">
+              Adicione novos cartões ao sistema do seu encontro.
+            </p>
+            <Link
+              to="/cartao/cadastrar"
+              className="inline-flex items-center text-blue-600 hover:text-blue-700"
+            >
+              Acessar
+              <svg
+                className="ml-2 w-4 h-4"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth="2"
+                  d="M9 5l7 7-7 7"
+                />
+              </svg>
+            </Link>
           </div>
 
-          {error ? (
-            <div className="p-6">
-              <div className="bg-red-50 text-red-700 p-4 rounded-lg">
-                {error}
-              </div>
+          <div className="bg-white rounded-2xl p-8 shadow-lg hover:shadow-xl transition-shadow">
+            <div className="h-12 w-12 bg-indigo-100 rounded-xl flex items-center justify-center mb-6">
+              <svg
+                className="h-6 w-6 text-indigo-600"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth="2"
+                  d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"
+                />
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth="2"
+                  d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"
+                />
+              </svg>
             </div>
-          ) : (
-            <div className="overflow-x-auto">
-              <table className="w-full">
-                <thead className="bg-gray-50">
-                  <tr>
-                    <th className="w-64 px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                      Número do Cartão
-                    </th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                      Nome
-                    </th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                      Saldo
-                    </th>
-                  </tr>
-                </thead>
-                <tbody className="bg-white divide-y divide-gray-200">
-                  {cartoes.map((cartao) => (
-                    <tr key={cartao.id} className="hover:bg-gray-50">
-                      <td className="px-6 py-4 whitespace-nowrap">
-                        <div className="text-sm text-gray-900">
-                          {cartao.idCard}
-                        </div>
-                      </td>
-                      <td className="px-6 py-4 whitespace-nowrap">
-                        <div className="text-sm font-medium text-gray-900">
-                          {cartao.nome}
-                        </div>
-                      </td>
-                      <td className="px-6 py-4 whitespace-nowrap">
-                        <div className="text-sm text-gray-900">
-                          {formatarSaldo(cartao.balance)}
-                        </div>
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
+            <h3 className="text-xl font-bold text-gray-900 mb-4">
+              Consultar Cartão
+            </h3>
+            <p className="text-gray-600 mb-6">
+              Consulte saldo e extrato dos cartões do seu encontro.
+            </p>
+            <Link
+              to="/cartao/consulta"
+              className="inline-flex items-center text-indigo-600 hover:text-indigo-700"
+            >
+              Acessar
+              <svg
+                className="ml-2 w-4 h-4"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth="2"
+                  d="M9 5l7 7-7 7"
+                />
+              </svg>
+            </Link>
+          </div>
 
-              {/* Rodapé da Tabela com Link para Ver Todos */}
-              <div className="bg-gray-50 px-6 py-4">
-                <Link
-                  to="/cartao/visualizar"
-                  className="text-sm font-medium text-indigo-600 hover:text-indigo-500 flex items-center justify-center"
-                >
-                  Ver todos os cartões
-                  <svg
-                    className="ml-2 w-4 h-4"
-                    fill="none"
-                    stroke="currentColor"
-                    viewBox="0 0 24 24"
-                  >
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      strokeWidth="2"
-                      d="M9 5l7 7-7 7"
-                    />
-                  </svg>
-                </Link>
-              </div>
+          <div className="bg-white rounded-2xl p-8 shadow-lg hover:shadow-xl transition-shadow">
+            <div className="h-12 w-12 bg-purple-100 rounded-xl flex items-center justify-center mb-6">
+              <svg
+                className="h-6 w-6 text-purple-600"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth="2"
+                  d="M12 6v6m0 0v6m0-6h6m-6 0H6"
+                />
+              </svg>
             </div>
-          )}
+            <h3 className="text-xl font-bold text-gray-900 mb-4">
+              Recarga de Cartão
+            </h3>
+            <p className="text-gray-600 mb-6">
+              Adicione créditos aos cartões do seu encontro.
+            </p>
+            <Link
+              to="/cartao/recarregar"
+              className="inline-flex items-center text-purple-600 hover:text-purple-700"
+            >
+              Acessar
+              <svg
+                className="ml-2 w-4 h-4"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth="2"
+                  d="M9 5l7 7-7 7"
+                />
+              </svg>
+            </Link>
+          </div>
         </div>
       </div>
     </div>

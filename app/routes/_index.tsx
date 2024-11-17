@@ -47,10 +47,9 @@ const LandingPage = () => {
         </svg>
       </div>
 
-      {/* Content */}
       <div className="z-10 text-center p-8">
         <div className="mb-12">
-          <div className="w-40 h-40 mx-auto flex items-center justify-center mb-6">
+          <div className="w-40 h-40 mx-auto flex items-center justify-center">
             <img
               src="/logo.png"
               alt="Logo"

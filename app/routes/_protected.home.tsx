@@ -37,19 +37,17 @@ export default function Home() {
         </div>
 
         <div className="relative px-4 py-16 sm:px-6 lg:px-8">
-          <div className="max-w-7xl mx-auto text-center">
-            <img
-              src="/logo.png"
-              alt="AcutisDataModos Logo"
-              className="h-24 mb-4 mx-auto"
-            />
+         <div className="max-w-7xl mx-auto text-center">
+          <img
+            src="/logo.png"
+            alt="AcutisDataModos Logo"
+            className="h-40 mx-auto"
+          />
             <h1 className="text-4xl sm:text-6xl font-extrabold text-white mb-6">
               AcutisDataModos
             </h1>
             <p className="text-lg sm:text-xl text-blue-100 max-w-3xl mx-auto mb-8">
-              Somos uma plataforma de gestão para eventos católicos e buscamos
-              ajudar pessoas através da tecnologia, seguindo o nosso baluarte
-              beato Carlo&nbsp;Acutis.
+            Plataforma de gestão para eventos católicos, guiada pelos princípios do beato Carlo Acutis, usando soluções tecnológicas a serviço da evangelização.
             </p>
           </div>
         </div>

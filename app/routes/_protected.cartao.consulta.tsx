@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { BackButton } from "~/components/BackButton";
 import { supabase } from "~/supabase/supabaseClient";
 
 interface Card {
@@ -130,6 +131,9 @@ export default function ConsultarCartao() {
     <div className="flex flex-col min-h-screen items-center justify-center bg-blue-100 px-4 py-8 sm:px-6 lg:px-8">
       <div className="w-full max-w-md space-y-6 mb-8">
         <div className="text-center">
+        <div className="flex justify-start mb-8">
+              <BackButton to="/cartao" />
+            </div>
           <h1 className="text-2xl sm:text-3xl md:text-4xl font-bold text-blue-500 mb-4">
             Consultar Cartão
           </h1>

@@ -1,52 +1,74 @@
-import { useLoaderData, Link } from "@remix-run/react";
+import { useLoaderData } from "@remix-run/react";
 import { json } from "@remix-run/node";
 import { supabase } from "~/supabase/supabaseClient";
-import { LuPencilLine } from "react-icons/lu";
+import { BackButton } from "~/components/BackButton";
 import { useState } from "react";
 
+
+
 interface Produto {
-  id: string;
+  id: number;
   nome: string;
-  categoria: string;
   preco: number;
   quantidade: number;
   disponivel: boolean;
-  totalVendido: number;
-  valorTotalVendido: number;
+  Categoria: string;
 }
 
-interface LoaderData {
-  produtos: Produto[];
-  totalProdutos: number;
+interface ProdutoComVendas extends Produto {
   totalVendido: number;
-  valorTotalVendido: number;
-  error: string | null;
+  valorTotalVendas: number;
 }
 
 export const loader = async () => {
-  try {
-    const { data: produtos, error } = await supabase
-      .from("Produto")
-      .select("*, (SELECT SUM(quantidade) AS totalVendido, SUM(quantidade * preco) AS valorTotalVendido FROM Venda WHERE Produto.id = Venda.idProduto)")
-      .order("created_at", { ascending: false });
+  // Buscar produtos
+  const { data: produtos, error: produtosError } = await supabase
+    .from("Produto")
+    .select("*");
 
-    if (error) throw error;
-
-    const totalProdutos = produtos.length;
-    const totalVendido = produtos.reduce((total, produto) => total + produto.totalVendido, 0);
-    const valorTotalVendido = produtos.reduce((total, produto) => total + produto.valorTotalVendido, 0);
-
-    return json<LoaderData>({ produtos, totalProdutos, totalVendido, valorTotalVendido, error: null });
-  } catch (error) {
-    console.error("Erro ao carregar produtos:", error);
-    return json<LoaderData>({ produtos: [], totalProdutos: 0, totalVendido: 0, valorTotalVendido: 0, error: "Erro ao carregar produtos" });
+  if (produtosError) {
+    throw new Error("Erro ao carregar produtos");
   }
+
+  // Buscar todos os itens de venda
+  const { data: itensVenda, error: itensError } = await supabase
+    .from("Item_venda")
+    .select(`
+      idProduto,
+      quantidade,
+      precoUnitario
+    `);
+
+  if (itensError) {
+    throw new Error("Erro ao carregar itens de venda");
+  }
+
+  // Calcular vendas por produto
+  const vendasPorProduto = itensVenda?.reduce((acc: {[key: string]}, item) => {
+    if (!acc[item.idProduto]) {
+      acc[item.idProduto] = {
+        totalVendido: 0,
+        valorTotal: 0
+      };
+    }
+    acc[item.idProduto].totalVendido += item.quantidade || 0;
+    acc[item.idProduto].valorTotal += (item.quantidade * item.precoUnitario) || 0;
+    return acc;
+  }, {});
+
+
+  const produtosProcessados = produtos?.map(produto => ({
+    ...produto,
+    totalVendido: vendasPorProduto?.[produto.id]?.totalVendido || 0,
+    valorTotalVendas: vendasPorProduto?.[produto.id]?.valorTotal || 0
+  }));
+
+  return json({ produtos: produtosProcessados || [] });
 };
 
-export default function VisualizarProdutos() {
-  const { produtos, totalProdutos, totalVendido, valorTotalVendido, error } = useLoaderData<LoaderData>();
-  const [busca, setBusca] = useState("");
-  const [categoria, setCategoria] = useState<string | null>(null);
+export default function EstatisticasProdutos() {
+  const { produtos } = useLoaderData<typeof loader>();
+  const [searchTerm, setSearchTerm] = useState("");
 
   const formatarPreco = (preco: number) => {
     return new Intl.NumberFormat("pt-BR", {
@@ -55,223 +77,186 @@ export default function VisualizarProdutos() {
     }).format(preco);
   };
 
-  const produtosFiltrados = produtos.filter(produto =>
-    produto.nome.toLowerCase().includes(busca.toLowerCase()) &&
-    (categoria === null || produto.categoria === categoria)
+  const handleSearch = (event: React.ChangeEvent<HTMLInputElement>) => {
+    setSearchTerm(event.target.value);
+  };
+
+  const filteredProdutos = produtos.filter((produto) =>
+    produto.nome.toLowerCase().includes(searchTerm.toLowerCase())
   );
+
+  if (!produtos || produtos.length === 0) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 py-12 px-4 sm:px-6 lg:px-8">
+        <div className="max-w-7xl mx-auto">
+          <header className="text-center mb-12">
+            <h1 className="text-4xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-blue-600 to-indigo-600 mb-2">
+              Estatísticas do Catálogo
+            </h1>
+          </header>
+
+          <div className="mb-8 flex justify-start">
+            <BackButton to="/gestao" />
+          </div>
+
+          <div className="bg-white rounded-xl shadow-lg p-6 text-center">
+            <h3 className="text-gray-800 text-lg font-medium">
+              Nenhum produto encontrado no momento.
+            </h3>
+            <p className="text-gray-600 mt-2">
+              Verifique se existem produtos cadastrados ou tente novamente mais tarde.
+            </p>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  const totalProdutos = produtos.length;
+  const produtosDisponiveis = produtos.filter(p => p.disponivel).length;
+  const valorEstoqueTotal = produtos.reduce((acc: number, produto: ProdutoComVendas) =>
+    acc + (produto.preco * produto.quantidade), 0);
+
+  const totalProdutosVendidos = produtos.reduce((acc: number, produto: ProdutoComVendas) =>
+    acc + produto.totalVendido, 0);
+
+  const valorTotalVendido = produtos.reduce((acc: number, produto: ProdutoComVendas) =>
+    acc + produto.valorTotalVendas, 0);
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 py-12 px-4 sm:px-6 lg:px-8">
       <div className="max-w-7xl mx-auto">
-        {/* Header */}
         <header className="text-center mb-12">
           <h1 className="text-4xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-blue-600 to-indigo-600 mb-2">
-            Análise de Produtos
+            Estatísticas do Catálogo
           </h1>
           <p className="text-gray-600 text-lg">
-            Visão Geral dos Produtos e Desempenho
+            Análise de Produtos e Performance
           </p>
         </header>
 
-        {/* Botão Voltar e Campo de Busca */}
-        <div className="max-w-7xl mx-auto mb-8 flex flex-col sm:flex-row justify-between items-center gap-4">
-          <Link
-            to="/gestao/home"
-            className="inline-flex items-center px-4 py-2 text-sm font-medium text-indigo-600 bg-white border border-indigo-600 rounded-lg hover:bg-indigo-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
-          >
-            <svg
-              className="w-5 h-5 mr-2"
-              fill="none"
-              stroke="currentColor"
-              viewBox="0 0 24 24"
-            >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth="2"
-                d="M10 19l-7-7m0 0l7-7m-7 7h18"
-              />
-            </svg>
-            Voltar
-          </Link>
+        <div className="mb-8 flex justify-start">
+          <BackButton to="/gestao/home" />
+        </div>
 
-          <div className="relative w-full sm:w-96">
-            <input
-              type="text"
-              placeholder="Buscar produto..."
-              value={busca}
-              onChange={(e) => setBusca(e.target.value)}
-              className="w-full px-4 py-3 text-base bg-white border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
-            />
-            <svg
-              className="absolute right-3 top-3.5 h-5 w-5 text-gray-400"
-              fill="none"
-              stroke="currentColor"
-              viewBox="0 0 24 24"
-            >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth="2"
-                d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"
-              />
-            </svg>
+        <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
+          <div className="bg-white rounded-xl shadow-lg p-6">
+            <h3 className="text-gray-500 text-sm font-medium mb-2">Total de Produtos</h3>
+            <p className="text-2xl font-bold text-gray-900">{totalProdutos}</p>
+          </div>
+
+          <div className="bg-white rounded-xl shadow-lg p-6">
+            <h3 className="text-gray-500 text-sm font-medium mb-2">Produtos Vendidos</h3>
+            <p className="text-2xl font-bold text-gray-900">{totalProdutosVendidos}</p>
+          </div>
+
+          <div className="bg-white rounded-xl shadow-lg p-6">
+            <h3 className="text-gray-500 text-sm font-medium mb-2">Produtos Disponíveis</h3>
+            <p className="text-2xl font-bold text-gray-900">{produtosDisponiveis}</p>
+          </div>
+
+          <div className="bg-white rounded-xl shadow-lg p-6">
+            <h3 className="text-gray-500 text-sm font-medium mb-2">Valor em Estoque</h3>
+            <p className="text-2xl font-bold text-gray-900">{formatarPreco(valorEstoqueTotal)}</p>
           </div>
         </div>
 
-        {/* Container Flex para Reordenar em Telas Pequenas */}
-        <div className="flex flex-col-reverse sm:flex-col gap-8">
-          {/* Cards de Estatísticas */}
-          <div className="grid grid-cols-1 sm:grid-cols-3 gap-6">
-            <div className="bg-white rounded-2xl shadow-xl p-6">
-              <h3 className="text-lg font-bold mb-2">Total de Produtos</h3>
-              <p className="text-4xl font-bold text-indigo-600">{totalProdutos}</p>
-            </div>
-            <div className="bg-white rounded-2xl shadow-xl p-6">
-              <h3 className="text-lg font-bold mb-2">Total Vendido</h3>
-              <p className="text-4xl font-bold text-indigo-600">{totalVendido}</p>
-            </div>
-            <div className="bg-white rounded-2xl shadow-xl p-6">
-              <h3 className="text-lg font-bold mb-2">Valor Total Vendido</h3>
-              <p className="text-4xl font-bold text-indigo-600">{formatarPreco(valorTotalVendido)}</p>
-            </div>
+        <div className="bg-white rounded-2xl shadow-xl p-6">
+          <h2 className="text-xl font-semibold text-gray-900 mb-4">Buscar Produto</h2>
+          <div className="flex items-center mb-4">
+            <input
+              type="text"
+              placeholder="Digite o nome do produto"
+              className="px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+              value={searchTerm}
+              onChange={handleSearch}
+            />
           </div>
+          <div className="overflow-x-auto">
+            <table className="w-full">
+              <thead className="bg-gray-50">
+                <tr>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Produto</th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Vendidos</th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Em Estoque</th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Total Vendas</th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-gray-200">
+                {filteredProdutos.map((produto) => (
+                  <tr key={produto.id}>
+                    <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
+                      {produto.nome}
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                      {produto.totalVendido} unidades
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                      {produto.quantidade} unidades
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                      {formatarPreco(produto.valorTotalVendas)}
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        </div>
 
-          {/* Tabela de Produtos */}
-          <div className="bg-white rounded-2xl shadow-xl overflow-hidden">
-            <div className="bg-gradient-to-r from-blue-500 to-indigo-600 px-6 py-4 flex justify-between items-center">
-              <h2 className="text-xl font-semibold text-white">
-                Lista de Produtos
-              </h2>
-              <div className="flex gap-2">
-                <button
-                  className={`px-4 py-2 rounded-lg text-sm font-medium ${
-                    categoria === null
-                      ? "bg-white text-indigo-600"
-                      : "bg-gray-200 text-gray-700"
-                  }`}
-                  onClick={() => setCategoria(null)}
-                >
-                  Todas as Categorias
-                </button>
-                <button
-                  className={`px-4 py-2 rounded-lg text-sm font-medium ${
-                    categoria === 'Lojinha'
-                      ? "bg-white text-indigo-600"
-                      : "bg-gray-200 text-gray-700"
-                  }`}
-                  onClick={() => setCategoria('Lojinha')}
-                >
-                  Lojinha
-                </button>
-                <button
-                  className={`px-4 py-2 rounded-lg text-sm font-medium ${
-                    categoria === 'Lanchonete'
-                      ? "bg-white text-indigo-600"
-                      : "bg-gray-200 text-gray-700"
-                  }`}
-                  onClick={() => setCategoria('Lanchonete')}
-                >
-                  Lanchonete
-                </button>
-              </div>
-            </div>
-
-            {error ? (
-              <div className="p-6">
-                <div className="bg-red-50 text-red-700 p-4 rounded-lg">
-                  {error}
-                </div>
-              </div>
-            ) : (
-              <div className="overflow-x-auto">
-                <table className="w-full">
-                  <thead className="bg-gray-50">
-                    <tr>
-                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                        Produto
-                      </th>
-                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                        Categoria
-                      </th>
-                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                        Preço
-                      </th>
-                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                        Quantidade
-                      </th>
-                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                        Total Vendido
-                      </th>
-                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                        Valor Total Vendido
-                      </th>
-                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                        Status
-                      </th>
-                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                        Editar
-                      </th>
+        <div className="bg-white rounded-2xl shadow-xl p-6 mt-8">
+          <h2 className="text-xl font-semibold text-gray-900 mb-4">Top Produtos</h2>
+          <div className="overflow-x-auto">
+            <table className="w-full">
+              <thead className="bg-gray-50">
+                <tr>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Produto</th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Vendidos</th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Em Estoque</th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Total Vendas</th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-gray-200">
+                {produtos
+                  .sort((a, b) => b.totalVendido - a.totalVendido)
+                  .slice(0, 5)
+                  .map((produto) => (
+                    <tr key={produto.id}>
+                      <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
+                        {produto.nome}
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                        {produto.totalVendido} unidades
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                        {produto.quantidade} unidades
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                        {formatarPreco(produto.valorTotalVendas)}
+                      </td>
                     </tr>
-                  </thead>
-                  <tbody className="bg-white divide-y divide-gray-200">
-                    {produtosFiltrados.map((produto) => (
-                      <tr key={produto.id} className="hover:bg-gray-50">
-                        <td className="px-6 py-4 whitespace-nowrap">
-                          <div className="text-sm font-medium text-gray-900">
-                            {produto.nome}
-                          </div>
-                        </td>
-                        <td className="px-6 py-4 whitespace-nowrap">
-                          <div className="text-sm text-gray-900">
-                            {produto.categoria || 'Sem categoria'}
-                          </div>
-                        </td>
-                        <td className="px-6 py-4 whitespace-nowrap">
-                          <div className="text-sm text-gray-900">
-                            {formatarPreco(produto.preco)}
-                          </div>
-                        </td>
-                        <td className="px-6 py-4 whitespace-nowrap">
-                          <div className="text-sm text-gray-900">
-                            {produto.quantidade}
-                          </div>
-                        </td>
-                        <td className="px-6 py-4 whitespace-nowrap">
-                          <div className="text-sm text-gray-900">
-                            {produto.totalVendido}
-                          </div>
-                        </td>
-                        <td className="px-6 py-4 whitespace-nowrap">
-                          <div className="text-sm text-gray-900">
-                            {formatarPreco(produto.valorTotalVendido)}
-                          </div>
-                        </td>
-                        <td className="px-6 py-4 whitespace-nowrap">
-                          <span
-                            className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${
-                              produto.disponivel
-                                ? "bg-green-100 text-green-800"
-                                : "bg-red-100 text-red-800"
-                            }`}
-                          >
-                            {produto.disponivel ? "Disponível" : "Indisponível"}
-                          </span>
-                        </td>
-                        <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
-                          <Link
-                            to={`/produto/visualizar/${produto.id}`}
-                            className="text-indigo-600 hover:text-indigo-900"
-                          >
-                            <LuPencilLine className="text-lg" />
-                          </Link>
-                        </td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
-              </div>
-            )}
+                  ))}
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <div className="bg-white rounded-2xl shadow-xl p-6 mt-8">
+          <h2 className="text-xl font-semibold text-gray-900 mb-4">Valor Total Vendido</h2>
+          <p className="text-2xl font-bold text-gray-900">{formatarPreco(valorTotalVendido)}</p>
+        </div>
+
+        <div className="bg-white rounded-2xl shadow-xl p-6 mt-8">
+          <h2 className="text-xl font-semibold text-gray-900 mb-4">Alertas de Estoque</h2>
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+            {produtos
+              .filter(p => p.quantidade < 10 && p.disponivel)
+              .map(produto => (
+                <div key={produto.id} className="bg-red-50 rounded-lg p-4">
+                  <h3 className="font-medium text-red-800">{produto.nome}</h3>
+                  <p className="text-sm text-red-600">Estoque baixo: {produto.quantidade} unidades</p>
+                </div>
+              ))}
           </div>
         </div>
       </div>
