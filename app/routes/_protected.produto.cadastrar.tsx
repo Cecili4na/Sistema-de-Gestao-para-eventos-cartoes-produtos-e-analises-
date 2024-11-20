@@ -1,19 +1,9 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useActionData, Form } from "@remix-run/react";
 import { json, ActionFunctionArgs } from "@remix-run/node";
 import { supabase } from "~/supabase/supabaseClient";
 import { PageHeader, Card } from "./_layout.produto";
 import { BackButton } from "~/components/BackButton";
-
-export const meta = () => {
-  return [
-    { title: "Cadastro de Produto" },
-    {
-      name: "description",
-      content: "Página para cadastrar produto no Supabase",
-    },
-  ];
-};
 
 type Categoria = "Lojinha" | "Lanchonete" | null;
 
@@ -22,13 +12,23 @@ interface ActionData {
   message: string;
 }
 
+export const meta = () => {
+  return [
+    { title: "Cadastro de Produto" },
+    {
+      name: "description",
+      content: "Página para cadastrar produtos",
+    },
+  ];
+};
+
 export async function action({ request }: ActionFunctionArgs) {
   const formData = await request.formData();
   const nome = formData.get("nome") as string;
   const preco = Number(formData.get("preco"));
   const quantidade = Number(formData.get("quantidade"));
   const disponivel = formData.get("disponivel") === "true";
-  const categoriaValue = formData.get("Categoria") as string; // Updated to match the correct column name
+  const categoriaValue = formData.get("Categoria") as string;
   const categoria =
     categoriaValue === "" ? null : (categoriaValue as Categoria);
 
@@ -49,7 +49,7 @@ export async function action({ request }: ActionFunctionArgs) {
         preco,
         quantidade,
         disponivel,
-        Categoria: categoria, // Updated to match the correct column name
+        Categoria: categoria,
       },
     ]);
 
@@ -75,11 +75,35 @@ export default function Produto() {
   const actionData = useActionData<typeof action>();
   const [precoError, setPrecoError] = useState<string | null>(null);
   const [quantidadeError, setQuantidadeError] = useState<string | null>(null);
-  const [categoria, setCategoria] = useState<Categoria>(null);
+  const [categoria, setCategoria] = useState<Categoria>("Lojinha");
+  const [nome, setNome] = useState("");
+  const [preco, setPreco] = useState("");
+  const [quantidade, setQuantidade] = useState("");
+  const [disponivel, setDisponivel] = useState(true);
+
+  const [isResetting, setIsResetting] = useState(false);
+
+  useEffect(() => {
+    if (actionData?.status === "success") {
+      setIsResetting(true);
+      setTimeout(() => {
+        setNome("");
+        setPreco("");
+        setQuantidade("");
+        setCategoria("Lojinha");
+        setDisponivel(true);
+        setPrecoError(null);
+        setQuantidadeError(null);
+        setIsResetting(false);
+      }, 1000);
+    }
+  }, [actionData]);
 
   const handlePrecoChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const value = parseFloat(e.target.value);
-    if (value < 0) {
+    const value = e.target.value;
+    setPreco(value);
+    const valueFloat = parseFloat(value);
+    if (valueFloat < 0) {
       setPrecoError("O valor deve ser maior ou igual a 0.");
     } else {
       setPrecoError(null);
@@ -87,8 +111,10 @@ export default function Produto() {
   };
 
   const handleQuantidadeChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const value = parseInt(e.target.value);
-    if (value <= 0) {
+    const value = e.target.value;
+    setQuantidade(value);
+    const valueInt = parseInt(value);
+    if (valueInt < 0) {
       setQuantidadeError("A quantidade deve ser maior ou igual a 0.");
     } else {
       setQuantidadeError(null);
@@ -118,6 +144,8 @@ export default function Produto() {
                   id="nome"
                   type="text"
                   name="nome"
+                  value={nome}
+                  onChange={(e) => setNome(e.target.value)}
                   placeholder="Digite o nome do produto"
                   className="w-full px-4 py-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors bg-gray-50 text-gray-900"
                   required
@@ -126,25 +154,18 @@ export default function Produto() {
 
               <div>
                 <label
-                  htmlFor="Categoria" // Updated to match the correct column name
+                  htmlFor="Categoria"
                   className="block text-sm font-medium text-gray-700 mb-1"
                 >
-                  Categoria (opcional)
+                  Categoria
                 </label>
                 <select
-                  id="Categoria" // Updated to match the correct column name
-                  name="Categoria" // Updated to match the correct column name
+                  id="Categoria"
+                  name="Categoria"
                   value={categoria ?? ""}
-                  onChange={(e) =>
-                    setCategoria(
-                      e.target.value === ""
-                        ? null
-                        : (e.target.value as Categoria)
-                    )
-                  }
+                  onChange={(e) => setCategoria(e.target.value as Categoria)}
                   className="w-full px-4 py-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors bg-gray-50 text-gray-900"
                 >
-                  <option value="">Sem categoria</option>
                   <option value="Lojinha">Lojinha</option>
                   <option value="Lanchonete">Lanchonete</option>
                 </select>
@@ -162,11 +183,12 @@ export default function Produto() {
                     id="preco"
                     type="number"
                     name="preco"
+                    value={preco}
+                    onChange={handlePrecoChange}
                     placeholder="0,00"
                     step="0.01"
                     min="0"
                     className="w-full px-4 py-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors bg-gray-50 text-gray-900"
-                    onChange={handlePrecoChange}
                     required
                   />
                   {precoError && (
@@ -185,10 +207,11 @@ export default function Produto() {
                     id="quantidade"
                     type="number"
                     name="quantidade"
+                    value={quantidade}
+                    onChange={handleQuantidadeChange}
                     placeholder="0"
                     min="0"
                     className="w-full px-4 py-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors bg-gray-50 text-gray-900"
-                    onChange={handleQuantidadeChange}
                     required
                   />
                   {quantidadeError && (
@@ -205,7 +228,8 @@ export default function Produto() {
                   type="checkbox"
                   name="disponivel"
                   value="true"
-                  defaultChecked
+                  checked={disponivel}
+                  onChange={(e) => setDisponivel(e.target.checked)}
                   className="h-5 w-5 text-blue-600 focus:ring-blue-500 border-gray-300 rounded cursor-pointer"
                 />
                 <label
@@ -260,9 +284,16 @@ export default function Produto() {
 
               <button
                 type="submit"
-                className="w-full bg-gradient-to-r from-blue-600 to-indigo-600 text-white py-3 px-6 rounded-lg font-medium hover:from-blue-700 hover:to-indigo-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transform transition-all duration-200 hover:scale-[1.02]"
+                disabled={isResetting}
+                className={`w-full bg-gradient-to-r from-blue-600 to-indigo-600 text-white py-3 px-6 rounded-lg font-medium 
+                  ${
+                    !isResetting
+                      ? "hover:from-blue-700 hover:to-indigo-700 hover:scale-[1.02]"
+                      : "opacity-50 cursor-not-allowed"
+                  }
+                  focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transform transition-all duration-200`}
               >
-                Cadastrar Produto
+                {isResetting ? "Cadastrando..." : "Cadastrar Produto"}
               </button>
             </Form>
           </div>

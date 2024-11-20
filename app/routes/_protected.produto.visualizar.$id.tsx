@@ -1,9 +1,15 @@
-/* eslint-disable jsx-a11y/label-has-associated-control */
-import { useLoaderData, Link } from "@remix-run/react";
-import { json, LoaderFunctionArgs } from "@remix-run/node";
+/* eslint-disable @typescript-eslint/no-unused-vars */
+import { useLoaderData, Link, Form } from "@remix-run/react";
+import {
+  json,
+  LoaderFunctionArgs,
+  ActionFunctionArgs,
+  redirect,
+} from "@remix-run/node";
 import { supabase } from "~/supabase/supabaseClient";
 import { PageHeader, Card } from "./_layout.produto";
 import { BackButton } from "~/components/BackButton";
+import { useState } from "react";
 
 export const loader = async ({ params }: LoaderFunctionArgs) => {
   const { id } = params;
@@ -25,8 +31,23 @@ export const loader = async ({ params }: LoaderFunctionArgs) => {
   }
 };
 
+export async function action({ request, params }: ActionFunctionArgs) {
+  const { id } = params;
+
+  try {
+    const { error } = await supabase.from("Produto").delete().eq("id", id);
+
+    if (error) throw error;
+
+    return redirect("/produto/visualizar");
+  } catch (error) {
+    return json({ error: "Erro ao deletar produto" });
+  }
+}
+
 export default function VisualizarProduto() {
   const { produto, error } = useLoaderData<typeof loader>();
+  const [showDeleteModal, setShowDeleteModal] = useState(false);
 
   const formatarPreco = (preco: number) => {
     return new Intl.NumberFormat("pt-BR", {
@@ -65,48 +86,78 @@ export default function VisualizarProduto() {
           <div className="p-6">
             <div className="space-y-6">
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
+                <label
+                  htmlFor="nome"
+                  className="block text-sm font-medium text-gray-700 mb-1"
+                >
                   Nome do Produto
                 </label>
-                <div className="w-full px-4 py-3 rounded-lg border border-gray-300 bg-gray-100 text-gray-700">
+                <div
+                  id="nome"
+                  className="w-full px-4 py-3 rounded-lg border border-gray-300 bg-gray-100 text-gray-700"
+                >
                   {produto.nome}
                 </div>
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
+                <label
+                  htmlFor="categoria"
+                  className="block text-sm font-medium text-gray-700 mb-1"
+                >
                   Categoria
                 </label>
-                <div className="w-full px-4 py-3 rounded-lg border border-gray-300 bg-gray-100 text-gray-700">
+                <div
+                  id="categoria"
+                  className="w-full px-4 py-3 rounded-lg border border-gray-300 bg-gray-100 text-gray-700"
+                >
                   {produto.Categoria || "Sem categoria"}
                 </div>
               </div>
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                  <label
+                    htmlFor="preco"
+                    className="block text-sm font-medium text-gray-700 mb-1"
+                  >
                     Preço (R$)
                   </label>
-                  <div className="w-full px-4 py-3 rounded-lg border border-gray-300 bg-gray-100 text-gray-700">
+                  <div
+                    id="preco"
+                    className="w-full px-4 py-3 rounded-lg border border-gray-300 bg-gray-100 text-gray-700"
+                  >
                     {formatarPreco(produto.preco)}
                   </div>
                 </div>
 
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                  <label
+                    htmlFor="quantidade"
+                    className="block text-sm font-medium text-gray-700 mb-1"
+                  >
                     Quantidade
                   </label>
-                  <div className="w-full px-4 py-3 rounded-lg border border-gray-300 bg-gray-100 text-gray-700">
+                  <div
+                    id="quantidade"
+                    className="w-full px-4 py-3 rounded-lg border border-gray-300 bg-gray-100 text-gray-700"
+                  >
                     {produto.quantidade}
                   </div>
                 </div>
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
+                <label
+                  htmlFor="valorTotal"
+                  className="block text-sm font-medium text-gray-700 mb-1"
+                >
                   Valor Total em Estoque
                 </label>
-                <div className="w-full px-4 py-3 rounded-lg border border-gray-300 bg-gray-100 text-gray-700">
+                <div
+                  id="valorTotal"
+                  className="w-full px-4 py-3 rounded-lg border border-gray-300 bg-gray-100 text-gray-700"
+                >
                   {formatarPreco(produto.preco * produto.quantidade)}
                 </div>
               </div>
@@ -133,11 +184,52 @@ export default function VisualizarProduto() {
                 >
                   Editar Produto
                 </Link>
+                <button
+                  onClick={() => setShowDeleteModal(true)}
+                  className="flex-1 bg-red-600 text-white py-3 px-6 rounded-lg font-medium hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2 transform transition-all duration-200 hover:scale-[1.02]"
+                >
+                  Excluir Produto
+                </button>
               </div>
             </div>
           </div>
         </Card>
       </div>
+
+      {/* Modal de Confirmação */}
+      {showDeleteModal && (
+        <div className="fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full z-50">
+          <div className="relative top-20 mx-auto p-5 border w-96 shadow-lg rounded-md bg-white">
+            <div className="mt-3 text-center">
+              <h3 className="text-lg leading-6 font-medium text-gray-900">
+                Confirmar Exclusão
+              </h3>
+              <div className="mt-2 px-7 py-3">
+                <p className="text-sm text-gray-500">
+                  Tem certeza que deseja excluir este produto? Esta ação não
+                  pode ser desfeita.
+                </p>
+              </div>
+              <div className="flex justify-center gap-4 mt-4">
+                <Form method="post">
+                  <button
+                    type="submit"
+                    className="bg-red-600 text-white px-4 py-2 rounded-lg hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2"
+                  >
+                    Excluir
+                  </button>
+                </Form>
+                <button
+                  onClick={() => setShowDeleteModal(false)}
+                  className="bg-gray-100 text-gray-700 px-4 py-2 rounded-lg hover:bg-gray-200 focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-offset-2"
+                >
+                  Cancelar
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

@@ -184,7 +184,6 @@ export default function EditarProduto() {
                   }
                   className="w-full px-4 py-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors bg-gray-50 text-gray-900"
                 >
-                  <option value="">Sem categoria</option>
                   <option value="Lojinha">Lojinha</option>
                   <option value="Lanchonete">Lanchonete</option>
                 </select>
