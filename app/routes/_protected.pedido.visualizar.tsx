@@ -21,6 +21,7 @@ interface Order {
   itens: {
     id: number;
     idProduto: number;
+    quantidade: number;
     Produto: {
       nome: string;
     };
@@ -28,11 +29,11 @@ interface Order {
 }
 
 const OrderManagement: React.FC = () => {
-  const [selectedCategoria, setSelectedCategoria] =
-    useState<CategoriaType>(null);
+  const [selectedCategoria, setSelectedCategoria] = useState<CategoriaType>(null);
   const [searchIdCard, setSearchIdCard] = useState("");
   const [orders, setOrders] = useState<Order[]>([]);
   const [deliveredOrderId, setDeliveredOrderId] = useState<number | null>(null);
+
   useEffect(() => {
     const fetchOrders = async () => {
       try {
@@ -41,7 +42,7 @@ const OrderManagement: React.FC = () => {
           .select(
             `
             id, cartao, valorTotal, Categoria, Entregue,
-            itens: Item_venda(id, idProduto, Produto(nome))
+            itens: Item_venda(id, idProduto, quantidade, Produto(nome))
           `
           )
           .eq("Entregue", false);
@@ -126,10 +127,7 @@ const OrderManagement: React.FC = () => {
         <div className="bg-white rounded-lg shadow p-6">
           <div className="mb-6 flex flex-col sm:flex-row justify-between items-center gap-4">
             <div>
-              <label
-                htmlFor="categoria"
-                className="block text-sm font-medium text-gray-900 mb-2"
-              >
+              <label htmlFor="categoria" className="block text-sm font-medium text-gray-900 mb-2">
                 Categoria
               </label>
               <div className="flex gap-4">
@@ -189,18 +187,25 @@ const OrderManagement: React.FC = () => {
                   className="bg-white rounded-lg shadow p-6 flex flex-col justify-between h-full"
                 >
                   <div className="mb-4">
-                    <h3 className="text-lg font-medium text-gray-900">
-                      Pedido {order.id}
-                    </h3>
+                    <div className="flex justify-between items-center mb-2">
+                      <h3 className="text-2xl font-bold text-indigo-600">
+                        {order.nomeCliente}
+                      </h3>
+                      <span className="text-lg font-semibold text-indigo-600">
+                        Cartão: {order.cartao}
+                      </span>
+                    </div>
                     <p className="text-gray-600">
-                      Categoria: {order.Categoria} | Cliente:{" "}
-                      {order.nomeCliente}
+                      Pedido {order.id} | {order.Categoria}
                     </p>
                   </div>
                   <div className="flex-1 space-y-2">
                     {order.itens.map((item) => (
-                      <div key={item.id} className="flex justify-between">
+                      <div key={item.id} className="flex justify-between items-center py-1 border-b border-gray-100">
                         <p className="text-gray-900">{item.Produto.nome}</p>
+                        <span className="font-medium text-gray-700">
+                          x{item.quantidade}
+                        </span>
                       </div>
                     ))}
                   </div>
@@ -212,7 +217,6 @@ const OrderManagement: React.FC = () => {
                         currency: "BRL",
                       })}
                     </p>
-                    <p className="text-gray-600">Cartão: {order.cartao}</p>
                     <button
                       type="button"
                       onClick={() => markAsDelivered(order.id)}

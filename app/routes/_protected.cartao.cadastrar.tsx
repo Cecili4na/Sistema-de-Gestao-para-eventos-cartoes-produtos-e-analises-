@@ -50,7 +50,7 @@ export default function CadastrarCartao() {
       );
       setErro(true);
     } else {
-      setMensagem("Cartão cadastrado com sucesso!");
+      setMensagem(`Cartão ${idCard} cadastrado com sucesso para ${nome}!`);
       setErro(false);
       setIdCard("");
       setNome("");
