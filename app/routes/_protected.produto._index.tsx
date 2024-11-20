@@ -50,7 +50,7 @@ export default function ProdutosDashboard() {
           {/* Card de Cadastro */}
 
           <ActionCard
-            to="/produto/cadastra"
+            to="/produto/cadastrar"
             icon={
               <svg
                 className="w-6 h-6 text-blue-600"

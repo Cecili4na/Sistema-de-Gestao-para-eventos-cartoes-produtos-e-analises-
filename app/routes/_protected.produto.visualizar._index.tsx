@@ -4,6 +4,7 @@ import { supabase } from "~/supabase/supabaseClient";
 import { LuPencilLine } from "react-icons/lu";
 import { useState } from "react";
 import { BackButton } from "~/components/BackButton";
+import { PageHeader } from "./_layout.produto";
 
 export const loader = async () => {
   try {
@@ -43,20 +44,11 @@ export default function VisualizarProdutos() {
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 py-12 px-4 sm:px-6 lg:px-8">
       <div className="max-w-7xl mx-auto">
-        {/* Header */}
-        <header className="text-center mb-12">
-          <h1 className="text-4xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-blue-600 to-indigo-600 mb-2">
-            Catálogo de Produtos
-          </h1>
-          <p className="text-gray-600 text-lg">
-            Visualização e Análise de Estoque
-          </p>
-        </header>
+        <BackButton to="/produto" />
+        <PageHeader title="Acutis Data Modos" subtitle="Catálogo de Produtos" />
 
-        {/* Botão Voltar e Campo de Busca */}
-        <div className="max-w-7xl mx-auto mb-8 flex flex-col sm:flex-row justify-between items-center gap-4">
-          <BackButton to="/produto" />
-
+        {/*Campo de Busca */}
+        <div className="max-w-7xl mx-auto mb-8 flex flex-col sm:flex-row justify-between items-center gap-4 -mt-8">
           <div className="relative w-full sm:w-96">
             <input
               type="text"
@@ -81,50 +73,51 @@ export default function VisualizarProdutos() {
           </div>
         </div>
 
-        {/* Container Flex para Reordenar em Telas Pequenas */}
-        <div className="flex flex-col-reverse sm:flex-col gap-8">
-          {/* Cards de Estatísticas */}
-          <div className="grid grid-cols-1 sm:grid-cols-3 gap-6">
-            {/* ... */}
-          </div>
-
+        <div className="flex flex-col gap-8">
           {/* Tabela de Produtos */}
           <div className="bg-white rounded-2xl shadow-xl overflow-hidden">
-            <div className="bg-gradient-to-r from-blue-500 to-indigo-600 px-6 py-4 flex justify-between items-center">
-              <h2 className="text-xl font-semibold text-white">
-                Lista Completa de Produtos
-              </h2>
-              <div className="flex gap-2">
-                <button
-                  className={`px-4 py-2 rounded-lg text-sm font-medium ${
-                    categoria === null
-                      ? "bg-white text-indigo-600"
-                      : "bg-gray-200 text-gray-700"
-                  }`}
-                  onClick={() => setCategoria(null)}
-                >
-                  Todas as Categorias
-                </button>
-                <button
-                  className={`px-4 py-2 rounded-lg text-sm font-medium ${
-                    categoria === "Lojinha"
-                      ? "bg-white text-indigo-600"
-                      : "bg-gray-200 text-gray-700"
-                  }`}
-                  onClick={() => setCategoria("Lojinha")}
-                >
-                  Lojinha
-                </button>
-                <button
-                  className={`px-4 py-2 rounded-lg text-sm font-medium ${
-                    categoria === "Lanchonete"
-                      ? "bg-white text-indigo-600"
-                      : "bg-gray-200 text-gray-700"
-                  }`}
-                  onClick={() => setCategoria("Lanchonete")}
-                >
-                  Lanchonete
-                </button>
+            {/* Cabeçalho com título e filtros */}
+            <div className="bg-gradient-to-r from-blue-500 to-indigo-600">
+              {/* Container flexível que muda baseado no breakpoint */}
+              <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between p-4 sm:p-4 gap-4 sm:gap-6">
+                {/* Título */}
+                <h2 className="text-xl font-semibold text-white">
+                  Lista Completa de Produtos
+                </h2>
+
+                {/* Botões de Categoria */}
+                <div className="flex flex-wrap sm:flex-nowrap gap-2">
+                  <button
+                    className={`flex-1 sm:flex-none px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
+                      categoria === null
+                        ? "bg-white text-indigo-600"
+                        : "bg-gray-200 text-gray-700 hover:bg-gray-300"
+                    }`}
+                    onClick={() => setCategoria(null)}
+                  >
+                    Todas
+                  </button>
+                  <button
+                    className={`flex-1 sm:flex-none px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
+                      categoria === "Lojinha"
+                        ? "bg-white text-indigo-600"
+                        : "bg-gray-200 text-gray-700 hover:bg-gray-300"
+                    }`}
+                    onClick={() => setCategoria("Lojinha")}
+                  >
+                    Lojinha
+                  </button>
+                  <button
+                    className={`flex-1 sm:flex-none px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
+                      categoria === "Lanchonete"
+                        ? "bg-white text-indigo-600"
+                        : "bg-gray-200 text-gray-700 hover:bg-gray-300"
+                    }`}
+                    onClick={() => setCategoria("Lanchonete")}
+                  >
+                    Lanchonete
+                  </button>
+                </div>
               </div>
             </div>
 

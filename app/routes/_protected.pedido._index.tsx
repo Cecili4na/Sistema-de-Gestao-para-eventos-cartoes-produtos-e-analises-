@@ -39,7 +39,7 @@ export default function PedidosDashboard() {
 
           {/* Card de Visualização de Pedidos */}
           <ActionCard
-            to="/pedido/visualizaPedido"
+            to="/pedido/visualizar"
             icon={
               <svg
                 className="w-6 h-6 text-purple-600"
