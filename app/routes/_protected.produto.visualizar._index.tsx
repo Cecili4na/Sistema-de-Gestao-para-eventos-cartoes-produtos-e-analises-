@@ -51,7 +51,7 @@ export default function VisualizarProdutos() {
               placeholder="Buscar produto..."
               value={busca}
               onChange={(e) => setBusca(e.target.value)}
-              className="w-full px-4 py-3 text-base bg-white border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
+              className="w-full px-4 py-3 text-black bg-white border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
             />
             <svg
               className="absolute right-3 top-3.5 h-5 w-5 text-gray-400"
