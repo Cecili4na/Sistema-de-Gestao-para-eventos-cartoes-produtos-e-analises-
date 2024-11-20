@@ -64,7 +64,7 @@ export default function CadastrarCartao() {
       <div className="max-w-2xl mx-auto">
         <BackButton to="/cartao" />
 
-        <FormCard title="Consultar Cartão">
+        <FormCard title="Cadastrar Cartão">
           <div className="p-6">
             <form onSubmit={handleSubmit} className="space-y-6">
               <div>
