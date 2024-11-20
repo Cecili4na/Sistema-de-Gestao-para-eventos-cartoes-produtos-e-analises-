@@ -1,23 +1,26 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useActionData, Form } from "@remix-run/react";
 import { json, ActionFunctionArgs } from "@remix-run/node";
 import { supabase } from "~/supabase/supabaseClient";
-import { PageHeader, Card } from "./_layout.produto";
+import { FormCard } from "~/components/FormCard";
+import { BackButton } from "~/components/BackButton";
+
+type Categoria = "Lojinha" | "Lanchonete" | null;
+
+interface ActionData {
+  status: "success" | "error";
+  message: string;
+}
 
 export const meta = () => {
   return [
     { title: "Cadastro de Produto" },
     {
       name: "description",
-      content: "Página para cadastrar produto no Supabase",
+      content: "Página para cadastrar produtos",
     },
   ];
 };
-
-interface ActionData {
-  status: "success" | "error";
-  message: string;
-}
 
 export async function action({ request }: ActionFunctionArgs) {
   const formData = await request.formData();
@@ -25,6 +28,9 @@ export async function action({ request }: ActionFunctionArgs) {
   const preco = Number(formData.get("preco"));
   const quantidade = Number(formData.get("quantidade"));
   const disponivel = formData.get("disponivel") === "true";
+  const categoriaValue = formData.get("Categoria") as string;
+  const categoria =
+    categoriaValue === "" ? null : (categoriaValue as Categoria);
 
   if (!nome || !preco || !quantidade || preco <= -0.01 || quantidade < 0) {
     return json<ActionData>(
@@ -37,9 +43,15 @@ export async function action({ request }: ActionFunctionArgs) {
   }
 
   try {
-    const { error } = await supabase
-      .from("Produto")
-      .insert([{ nome, preco, quantidade, disponivel }]);
+    const { error } = await supabase.from("Produto").insert([
+      {
+        nome,
+        preco,
+        quantidade,
+        disponivel,
+        Categoria: categoria,
+      },
+    ]);
 
     if (error) throw error;
 
@@ -48,6 +60,7 @@ export async function action({ request }: ActionFunctionArgs) {
       message: "Produto cadastrado com sucesso!",
     });
   } catch (error) {
+    console.error("Erro ao cadastrar:", error);
     return json<ActionData>(
       {
         status: "error",
@@ -62,10 +75,35 @@ export default function Produto() {
   const actionData = useActionData<typeof action>();
   const [precoError, setPrecoError] = useState<string | null>(null);
   const [quantidadeError, setQuantidadeError] = useState<string | null>(null);
+  const [categoria, setCategoria] = useState<Categoria>("Lojinha");
+  const [nome, setNome] = useState("");
+  const [preco, setPreco] = useState("");
+  const [quantidade, setQuantidade] = useState("");
+  const [disponivel, setDisponivel] = useState(true);
+
+  const [isResetting, setIsResetting] = useState(false);
+
+  useEffect(() => {
+    if (actionData?.status === "success") {
+      setIsResetting(true);
+      setTimeout(() => {
+        setNome("");
+        setPreco("");
+        setQuantidade("");
+        setCategoria("Lojinha");
+        setDisponivel(true);
+        setPrecoError(null);
+        setQuantidadeError(null);
+        setIsResetting(false);
+      }, 1000);
+    }
+  }, [actionData]);
 
   const handlePrecoChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const value = parseFloat(e.target.value);
-    if (value < 0) {
+    const value = e.target.value;
+    setPreco(value);
+    const valueFloat = parseFloat(value);
+    if (valueFloat < 0) {
       setPrecoError("O valor deve ser maior ou igual a 0.");
     } else {
       setPrecoError(null);
@@ -73,8 +111,10 @@ export default function Produto() {
   };
 
   const handleQuantidadeChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const value = parseInt(e.target.value);
-    if (value <= 0) {
+    const value = e.target.value;
+    setQuantidade(value);
+    const valueInt = parseInt(value);
+    if (valueInt < 0) {
       setQuantidadeError("A quantidade deve ser maior ou igual a 0.");
     } else {
       setQuantidadeError(null);
@@ -84,12 +124,9 @@ export default function Produto() {
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 py-12 px-4 sm:px-6 lg:px-8">
       <div className="max-w-2xl mx-auto">
-        <PageHeader
-          title="Acutis Data Modos"
-          subtitle="Sistema de Gestão de Produtos"
-        />
+        <BackButton to="/produto" />
 
-        <Card title="Cadastrar Novo Produto">
+        <FormCard title="Cadastrar Novo Produto">
           <div className="p-6">
             <Form method="post" className="space-y-6">
               <div>
@@ -103,15 +140,34 @@ export default function Produto() {
                   id="nome"
                   type="text"
                   name="nome"
+                  value={nome}
+                  onChange={(e) => setNome(e.target.value)}
                   placeholder="Digite o nome do produto"
                   className="w-full px-4 py-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors bg-gray-50 text-gray-900"
                   required
                 />
               </div>
 
-              {/* Grid para Preço e Quantidade */}
+              <div>
+                <label
+                  htmlFor="Categoria"
+                  className="block text-sm font-medium text-gray-700 mb-1"
+                >
+                  Categoria
+                </label>
+                <select
+                  id="Categoria"
+                  name="Categoria"
+                  value={categoria ?? ""}
+                  onChange={(e) => setCategoria(e.target.value as Categoria)}
+                  className="w-full px-4 py-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors bg-gray-50 text-gray-900"
+                >
+                  <option value="Lojinha">Lojinha</option>
+                  <option value="Lanchonete">Lanchonete</option>
+                </select>
+              </div>
+
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                {/* Preço */}
                 <div>
                   <label
                     htmlFor="preco"
@@ -123,10 +179,12 @@ export default function Produto() {
                     id="preco"
                     type="number"
                     name="preco"
-                    placeholder="0,00"
-                    step="0.50"
-                    className="w-full px-4 py-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors bg-gray-50 text-gray-900"
+                    value={preco}
                     onChange={handlePrecoChange}
+                    placeholder="0,00"
+                    step="0.01"
+                    min="0"
+                    className="w-full px-4 py-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors bg-gray-50 text-gray-900"
                     required
                   />
                   {precoError && (
@@ -134,7 +192,6 @@ export default function Produto() {
                   )}
                 </div>
 
-                {/* Quantidade */}
                 <div>
                   <label
                     htmlFor="quantidade"
@@ -146,9 +203,11 @@ export default function Produto() {
                     id="quantidade"
                     type="number"
                     name="quantidade"
-                    placeholder="0"
-                    className="w-full px-4 py-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors bg-gray-50 text-gray-900"
+                    value={quantidade}
                     onChange={handleQuantidadeChange}
+                    placeholder="0"
+                    min="0"
+                    className="w-full px-4 py-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors bg-gray-50 text-gray-900"
                     required
                   />
                   {quantidadeError && (
@@ -159,13 +218,14 @@ export default function Produto() {
                 </div>
               </div>
 
-              {/* Checkbox Disponível */}
               <div className="flex items-center">
                 <input
                   id="disponivel"
                   type="checkbox"
                   name="disponivel"
                   value="true"
+                  checked={disponivel}
+                  onChange={(e) => setDisponivel(e.target.checked)}
                   className="h-5 w-5 text-blue-600 focus:ring-blue-500 border-gray-300 rounded cursor-pointer"
                 />
                 <label
@@ -176,7 +236,6 @@ export default function Produto() {
                 </label>
               </div>
 
-              {/* Mensagem de Status */}
               {actionData?.message && (
                 <div
                   aria-live="polite"
@@ -219,16 +278,22 @@ export default function Produto() {
                 </div>
               )}
 
-              {/* Botão Submit */}
               <button
                 type="submit"
-                className="w-full bg-gradient-to-r from-blue-600 to-indigo-600 text-white py-3 px-6 rounded-lg font-medium hover:from-blue-700 hover:to-indigo-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transform transition-all duration-200 hover:scale-[1.02]"
+                disabled={isResetting}
+                className={`w-full bg-gradient-to-r from-blue-600 to-indigo-600 text-white py-3 px-6 rounded-lg font-medium 
+                  ${
+                    !isResetting
+                      ? "hover:from-blue-700 hover:to-indigo-700 hover:scale-[1.02]"
+                      : "opacity-50 cursor-not-allowed"
+                  }
+                  focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transform transition-all duration-200`}
               >
-                Cadastrar Produto
+                {isResetting ? "Cadastrando..." : "Cadastrar Produto"}
               </button>
             </Form>
           </div>
-        </Card>
+        </FormCard>
       </div>
     </div>
   );
