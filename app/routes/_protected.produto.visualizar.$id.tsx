@@ -7,7 +7,7 @@ import {
   redirect,
 } from "@remix-run/node";
 import { supabase } from "~/supabase/supabaseClient";
-import { PageHeader, Card } from "./_layout.produto";
+import { FormCard } from "~/components/FormCard";
 import { BackButton } from "~/components/BackButton";
 import { useState } from "react";
 
@@ -60,13 +60,13 @@ export default function VisualizarProduto() {
     return (
       <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 py-12 px-4 sm:px-6 lg:px-8">
         <div className="max-w-2xl mx-auto">
-          <Card>
+          <FormCard>
             <div className="p-6">
               <div className="bg-red-50 text-red-700 p-4 rounded-lg">
                 {error || "Produto não encontrado"}
               </div>
             </div>
-          </Card>
+          </FormCard>
         </div>
       </div>
     );
@@ -77,12 +77,7 @@ export default function VisualizarProduto() {
       <div className="max-w-2xl mx-auto">
         <BackButton to="/produto/visualizar" />
 
-        <PageHeader
-          title="Acutis Data Modos"
-          subtitle="Sistema de Gestão de Produtos"
-        />
-
-        <Card title="Visualizar Produto">
+        <FormCard title="Visualizar Produto">
           <div className="p-6">
             <div className="space-y-6">
               <div>
@@ -193,7 +188,7 @@ export default function VisualizarProduto() {
               </div>
             </div>
           </div>
-        </Card>
+        </FormCard>
       </div>
 
       {/* Modal de Confirmação */}

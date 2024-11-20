@@ -2,7 +2,7 @@ import { useState, useEffect, useCallback } from "react";
 import { Form, useActionData, useLoaderData } from "@remix-run/react";
 import { json, ActionFunctionArgs } from "@remix-run/node";
 import { supabase } from "~/supabase/supabaseClient";
-import { PageHeader, Card } from "./_layout.produto";
+import { FormCard } from "~/components/FormCard";
 import { PostgrestError } from "@supabase/supabase-js";
 import { BackButton } from "~/components/BackButton";
 
@@ -282,7 +282,6 @@ export default function RealizarVenda() {
     <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 py-12 px-4 sm:px-6 lg:px-8">
       <div className="max-w-7xl mx-auto">
         <BackButton to="/pedido" />
-        <PageHeader title="Acutis Data Modus" subtitle="Sistema de Vendas" />
 
         {error && (
           <div className="mb-6 flex items-center p-4 bg-red-50 border-l-4 border-red-500 rounded-lg">
@@ -309,7 +308,7 @@ export default function RealizarVenda() {
         )}
 
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-          <Card title="Produtos Disponíveis">
+          <FormCard title="Produtos Disponíveis">
             <div className="p-6">
               <div className="mb-6 flex flex-col sm:flex-row items-center gap-4">
                 <div className="relative w-full sm:w-96">
@@ -441,9 +440,9 @@ export default function RealizarVenda() {
                 )}
               </div>
             </div>
-          </Card>
+          </FormCard>
 
-          <Card title="Carrinho">
+          <FormCard title="Carrinho">
             <div className="p-6">
               <Form method="post" className="space-y-6" onSubmit={handleSubmit}>
                 {/* Apenas UM bloco de mensagens aqui em cima */}
@@ -666,7 +665,7 @@ export default function RealizarVenda() {
                 </button>
               </Form>
             </div>
-          </Card>
+          </FormCard>
         </div>
       </div>
     </div>

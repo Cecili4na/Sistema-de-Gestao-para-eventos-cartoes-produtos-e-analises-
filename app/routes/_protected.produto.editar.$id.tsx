@@ -2,8 +2,8 @@ import { useState, useEffect } from "react";
 import { useLoaderData, useActionData, Form, Link } from "@remix-run/react";
 import { json, ActionFunctionArgs, LoaderFunctionArgs } from "@remix-run/node";
 import { supabase } from "~/supabase/supabaseClient";
-import { PageHeader, Card } from "./_layout.produto";
 import { BackButton } from "~/components/BackButton";
+import { FormCard } from "~/components/FormCard";
 
 type Categoria = "Lojinha" | "Lanchonete" | null;
 
@@ -122,13 +122,13 @@ export default function EditarProduto() {
     return (
       <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 py-12 px-4 sm:px-6 lg:px-8">
         <div className="max-w-2xl mx-auto">
-          <Card>
+          <FormCard>
             <div className="p-6">
               <div className="bg-red-50 text-red-700 p-4 rounded-lg">
                 {error || "Produto não encontrado"}
               </div>
             </div>
-          </Card>
+          </FormCard>
         </div>
       </div>
     );
@@ -139,12 +139,7 @@ export default function EditarProduto() {
       <div className="max-w-2xl mx-auto">
         <BackButton to={`/produto/visualizar/${produto.id}`} />
 
-        <PageHeader
-          title="Acutis Data Modos"
-          subtitle="Sistema de Gestão de Produtos"
-        />
-
-        <Card title="Editar Produto">
+        <FormCard title="Editar Produto">
           <div className="p-6">
             <Form method="post" className="space-y-6">
               <div>
@@ -315,7 +310,7 @@ export default function EditarProduto() {
               </div>
             </Form>
           </div>
-        </Card>
+        </FormCard>
       </div>
     </div>
   );

@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { supabase } from "~/supabase/supabaseClient";
-import { PageHeader, Card } from "./_layout.cartao";
+import { FormCard } from "~/components/FormCard";
 import { BackButton } from "~/components/BackButton";
 
 export const meta = () => {
@@ -64,9 +64,7 @@ export default function CadastrarCartao() {
       <div className="max-w-2xl mx-auto">
         <BackButton to="/cartao" />
 
-        <PageHeader />
-
-        <Card title="Cadastrar Novo Cartão">
+        <FormCard title="Consultar Cartão">
           <div className="p-6">
             <form onSubmit={handleSubmit} className="space-y-6">
               <div>
@@ -192,7 +190,7 @@ export default function CadastrarCartao() {
               </button>
             </form>
           </div>
-        </Card>
+        </FormCard>
       </div>
     </div>
   );

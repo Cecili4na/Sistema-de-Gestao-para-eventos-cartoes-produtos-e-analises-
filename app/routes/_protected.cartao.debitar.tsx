@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { supabase } from "~/supabase/supabaseClient";
-import { PageHeader, Card } from "./_layout.cartao";
+import { FormCard } from "~/components/FormCard";
 import { BackButton } from "~/components/BackButton";
 
 interface Card {
@@ -147,9 +147,7 @@ export default function DebitarCartao() {
       <div className="max-w-2xl mx-auto">
         <BackButton to="/cartao" />
 
-        <PageHeader />
-
-        <Card title="Debitar do Cartão">
+        <FormCard title="Debitar do Cartão">
           <div className="p-6">
             {!confirmarDebito ? (
               <form onSubmit={handleSubmit} className="space-y-6">
@@ -338,7 +336,7 @@ export default function DebitarCartao() {
               </div>
             )}
           </div>
-        </Card>
+        </FormCard>
       </div>
     </div>
   );

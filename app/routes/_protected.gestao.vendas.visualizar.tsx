@@ -2,7 +2,7 @@ import { useState } from "react";
 import { Form, Link, useLoaderData } from "@remix-run/react";
 import { json, LoaderFunctionArgs } from "@remix-run/node";
 import { supabase } from "~/supabase/supabaseClient";
-import { PageHeader, Card } from "./_layout.produto";
+import { FormCard } from "~/components/FormCard";
 
 enum Categoria {
   Lojinha = "Lojinha",
@@ -35,13 +35,15 @@ export const loader = async ({ request }: LoaderFunctionArgs) => {
   try {
     let query = supabase
       .from("Venda")
-      .select(`
+      .select(
+        `
         *,
         Card (
           nome,
           idCard
         )
-      `)
+      `
+      )
       .order("created_at", { ascending: false });
 
     if (idCard) {
@@ -57,10 +59,12 @@ export const loader = async ({ request }: LoaderFunctionArgs) => {
       throw new Error(error.message);
     }
 
-    const vendas: Venda[] | null = data ? data.map((venda) => ({
-      ...venda,
-      nome: venda.Card.nome,
-    })) : null;
+    const vendas: Venda[] | null = data
+      ? data.map((venda) => ({
+          ...venda,
+          nome: venda.Card.nome,
+        }))
+      : null;
 
     return json<LoaderData>({ vendas, error: null });
   } catch (err) {
@@ -72,7 +76,9 @@ export const loader = async ({ request }: LoaderFunctionArgs) => {
 export default function ListarVendas() {
   const { vendas, error } = useLoaderData<LoaderData>();
   const [searchId, setSearchId] = useState("");
-  const [selectedCategory, setSelectedCategory] = useState<Categoria | "all">("all");
+  const [selectedCategory, setSelectedCategory] = useState<Categoria | "all">(
+    "all"
+  );
 
   const formatarValor = (valor: number) => {
     return new Intl.NumberFormat("pt-BR", {
@@ -117,12 +123,7 @@ export default function ListarVendas() {
           </Link>
         </div>
 
-        <PageHeader
-          title="Acutis Data Modos"
-          subtitle="Listagem de Vendas"
-        />
-
-        <Card>
+        <FormCard title="Listagem de Vendas">
           <div className="p-6">
             {/* Formulário de Filtros */}
             <Form method="get" className="mb-8">
@@ -155,7 +156,9 @@ export default function ListarVendas() {
                     id="categoria"
                     name="categoria"
                     value={selectedCategory}
-                    onChange={(e) => setSelectedCategory(e.target.value as Categoria | "all")}
+                    onChange={(e) =>
+                      setSelectedCategory(e.target.value as Categoria | "all")
+                    }
                     className="w-full px-4 py-3 bg-white text-gray-900 rounded-lg border border-gray-300 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors"
                   >
                     <option value="all">Todas</option>
@@ -217,11 +220,13 @@ export default function ListarVendas() {
                         <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
                           {venda.Categoria}
                         </td>
-                        <td className={`px-6 py-4 whitespace-nowrap text-sm text-right ${
-                          venda.valorTotal < 0
-                            ? "text-red-600 font-medium"
-                            : "text-green-600 font-medium"
-                        }`}>
+                        <td
+                          className={`px-6 py-4 whitespace-nowrap text-sm text-right ${
+                            venda.valorTotal < 0
+                              ? "text-red-600 font-medium"
+                              : "text-green-600 font-medium"
+                          }`}
+                        >
                           {formatarValor(venda.valorTotal)}
                         </td>
                       </tr>
@@ -231,13 +236,11 @@ export default function ListarVendas() {
               </div>
             ) : (
               <div className="text-center py-8 text-gray-500">
-                {error
-                  ? error
-                  : "Não há vendas cadastradas."}
+                {error ? error : "Não há vendas cadastradas."}
               </div>
             )}
           </div>
-        </Card>
+        </FormCard>
       </div>
     </div>
   );

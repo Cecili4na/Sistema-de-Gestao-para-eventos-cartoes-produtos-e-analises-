@@ -3,7 +3,7 @@ import { json } from "@remix-run/node";
 import { supabase } from "~/supabase/supabaseClient";
 import { LuPencilLine } from "react-icons/lu";
 import { ActionCard } from "~/components/ActionCard";
-import { BackButton } from "~/components/BackButton";
+import { PageHeader } from "~/components/PageHeader";
 
 export const loader = async () => {
   try {
@@ -33,22 +33,14 @@ export default function ProdutosDashboard() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 py-12 px-4 sm:px-6 lg:px-8">
-      <div className="max-w-7xl mx-auto">
-        <BackButton to="/home" />
-
-        {/* Header */}
-        <header className="text-center mb-12">
-          <h1 className="text-4xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-blue-600 to-indigo-600 mb-2">
-            Acutis Data Modos
-          </h1>
-          <p className="text-gray-600 text-lg">Sistema de Gestão de Produtos</p>
-        </header>
-
-        {/* Cards de Ação Principais */}
+    <div className="bg-gradient-to-br from-blue-50 to-indigo-100">
+      <PageHeader
+        title="Gestão de Produtos"
+        subtitle="Gerencie todos os produtos do seu evento de forma simples e
+              eficiente."
+      />
+      <div className="max-w-7xl mx-auto px-4 py-16 sm:px-6 lg:px-8">
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-12">
-          {/* Card de Cadastro */}
-
           <ActionCard
             to="/produto/cadastrar"
             icon={
@@ -70,7 +62,6 @@ export default function ProdutosDashboard() {
             description="Adicione novos produtos ao seu sistema."
           />
 
-          {/* Card de Visualização */}
           <ActionCard
             to="/produto/visualizar"
             icon={
@@ -102,7 +93,6 @@ export default function ProdutosDashboard() {
           />
         </div>
 
-        {/* Seção de Últimos Produtos */}
         <div className="bg-white rounded-2xl shadow-xl overflow-hidden">
           <div className="bg-gradient-to-r from-blue-500 to-indigo-600 px-6 py-4">
             <h2 className="text-xl font-semibold text-white">

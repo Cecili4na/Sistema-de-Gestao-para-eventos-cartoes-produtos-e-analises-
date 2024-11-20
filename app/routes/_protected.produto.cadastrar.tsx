@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 import { useActionData, Form } from "@remix-run/react";
 import { json, ActionFunctionArgs } from "@remix-run/node";
 import { supabase } from "~/supabase/supabaseClient";
-import { PageHeader, Card } from "./_layout.produto";
+import { FormCard } from "~/components/FormCard";
 import { BackButton } from "~/components/BackButton";
 
 type Categoria = "Lojinha" | "Lanchonete" | null;
@@ -125,12 +125,8 @@ export default function Produto() {
     <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 py-12 px-4 sm:px-6 lg:px-8">
       <div className="max-w-2xl mx-auto">
         <BackButton to="/produto" />
-        <PageHeader
-          title="Acutis Data Modos"
-          subtitle="Sistema de Gestão de Produtos"
-        />
 
-        <Card title="Cadastrar Novo Produto">
+        <FormCard title="Cadastrar Novo Produto">
           <div className="p-6">
             <Form method="post" className="space-y-6">
               <div>
@@ -297,7 +293,7 @@ export default function Produto() {
               </button>
             </Form>
           </div>
-        </Card>
+        </FormCard>
       </div>
     </div>
   );

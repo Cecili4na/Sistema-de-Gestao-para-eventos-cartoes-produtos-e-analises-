@@ -4,7 +4,6 @@ import { supabase } from "~/supabase/supabaseClient";
 import { LuPencilLine } from "react-icons/lu";
 import { useState } from "react";
 import { BackButton } from "~/components/BackButton";
-import { PageHeader } from "./_layout.produto";
 
 export const loader = async () => {
   try {
@@ -34,7 +33,6 @@ export default function VisualizarProdutos() {
     }).format(preco);
   };
 
-  // Filtra os produtos com base na busca e categoria
   const produtosFiltrados = produtos.filter(
     (produto) =>
       produto.nome.toLowerCase().includes(busca.toLowerCase()) &&
@@ -45,10 +43,8 @@ export default function VisualizarProdutos() {
     <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 py-12 px-4 sm:px-6 lg:px-8">
       <div className="max-w-7xl mx-auto">
         <BackButton to="/produto" />
-        <PageHeader title="Acutis Data Modos" subtitle="Catálogo de Produtos" />
 
-        {/*Campo de Busca */}
-        <div className="max-w-7xl mx-auto mb-8 flex flex-col sm:flex-row justify-between items-center gap-4 -mt-8">
+        <div className="max-w-7xl mx-auto mb-8 flex flex-col sm:flex-row justify-between items-center gap-4 mt-8">
           <div className="relative w-full sm:w-96">
             <input
               type="text"

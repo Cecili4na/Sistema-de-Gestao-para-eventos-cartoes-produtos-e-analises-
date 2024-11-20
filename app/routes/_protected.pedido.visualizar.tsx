@@ -2,14 +2,14 @@
 import React, { useState, useEffect } from "react";
 import { BackButton } from "~/components/BackButton";
 import { supabase } from "~/supabase/supabaseClient";
-import { PageHeader } from "./_layout.cartao";
+import { useSearchParams } from "@remix-run/react";
 
 const CATEGORIAS = {
   LOJINHA: "Lojinha",
   LANCHONETE: "Lanchonete",
 } as const;
 
-type CategoriaType = (typeof CATEGORIAS)[keyof typeof CATEGORIAS] | null;
+type CategoriaType = (typeof CATEGORIAS)[keyof typeof CATEGORIAS];
 
 interface Order {
   id: number;
@@ -29,10 +29,35 @@ interface Order {
 }
 
 const OrderManagement: React.FC = () => {
-  const [selectedCategoria, setSelectedCategoria] = useState<CategoriaType>(null);
-  const [searchIdCard, setSearchIdCard] = useState("");
+  const [searchParams, setSearchParams] = useSearchParams();
+
+  const initialCategoria =
+    (searchParams.get("categoria") as CategoriaType) || CATEGORIAS.LOJINHA;
+  const [selectedCategoria, setSelectedCategoria] =
+    useState<CategoriaType>(initialCategoria);
+  const [searchIdCard, setSearchIdCard] = useState(
+    searchParams.get("idCard") || ""
+  );
   const [orders, setOrders] = useState<Order[]>([]);
   const [deliveredOrderId, setDeliveredOrderId] = useState<number | null>(null);
+
+  const handleCategoriaChange = (categoria: CategoriaType) => {
+    setSelectedCategoria(categoria);
+    const newSearchParams = new URLSearchParams(searchParams);
+    newSearchParams.set("categoria", categoria);
+    setSearchParams(newSearchParams);
+  };
+
+  const handleSearchIdChange = (value: string) => {
+    setSearchIdCard(value);
+    const newSearchParams = new URLSearchParams(searchParams);
+    if (value) {
+      newSearchParams.set("idCard", value);
+    } else {
+      newSearchParams.delete("idCard");
+    }
+    setSearchParams(newSearchParams);
+  };
 
   useEffect(() => {
     const fetchOrders = async () => {
@@ -45,11 +70,8 @@ const OrderManagement: React.FC = () => {
             itens: Item_venda(id, idProduto, quantidade, Produto(nome))
           `
           )
-          .eq("Entregue", false);
-
-        if (selectedCategoria) {
-          query = query.eq("Categoria", selectedCategoria);
-        }
+          .eq("Entregue", false)
+          .eq("Categoria", selectedCategoria);
 
         if (searchIdCard) {
           query = query.eq("cartao", searchIdCard);
@@ -122,49 +144,32 @@ const OrderManagement: React.FC = () => {
     <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 py-12 px-4 sm:px-6 lg:px-8">
       <div className="max-w-7xl mx-auto">
         <BackButton to="/pedido" />
-        <PageHeader title="Acutis Data Modos" subtitle="Área de Entregas" />
 
         <div className="bg-white rounded-lg shadow p-6">
           <div className="mb-6 flex flex-col sm:flex-row justify-between items-center gap-4">
-            <div>
-              <label htmlFor="categoria" className="block text-sm font-medium text-gray-900 mb-2">
-                Categoria
-              </label>
-              <div className="flex gap-4">
-                <button
-                  type="button"
-                  onClick={() => setSelectedCategoria(null)}
-                  className={`px-4 py-2 rounded-lg text-sm font-medium ${
-                    selectedCategoria === null
-                      ? "bg-white text-indigo-600 border-2 border-indigo-600"
-                      : "bg-gray-200 text-gray-700 hover:bg-gray-300"
-                  }`}
-                >
-                  Todas
-                </button>
-                <button
-                  type="button"
-                  onClick={() => setSelectedCategoria(CATEGORIAS.LOJINHA)}
-                  className={`px-4 py-2 rounded-lg text-sm font-medium ${
-                    selectedCategoria === CATEGORIAS.LOJINHA
-                      ? "bg-white text-indigo-600 border-2 border-indigo-600"
-                      : "bg-gray-200 text-gray-700 hover:bg-gray-300"
-                  }`}
-                >
-                  Lojinha
-                </button>
-                <button
-                  type="button"
-                  onClick={() => setSelectedCategoria(CATEGORIAS.LANCHONETE)}
-                  className={`px-4 py-2 rounded-lg text-sm font-medium ${
-                    selectedCategoria === CATEGORIAS.LANCHONETE
-                      ? "bg-white text-indigo-600 border-2 border-indigo-600"
-                      : "bg-gray-200 text-gray-700 hover:bg-gray-300"
-                  }`}
-                >
-                  Lanchonete
-                </button>
-              </div>
+            <div className="flex gap-4">
+              <button
+                type="button"
+                onClick={() => handleCategoriaChange(CATEGORIAS.LOJINHA)}
+                className={`px-4 py-2 rounded-lg text-sm font-medium ${
+                  selectedCategoria === CATEGORIAS.LOJINHA
+                    ? "bg-white text-indigo-600 border-2 border-indigo-600"
+                    : "bg-gray-200 text-gray-700 hover:bg-gray-300"
+                }`}
+              >
+                Lojinha
+              </button>
+              <button
+                type="button"
+                onClick={() => handleCategoriaChange(CATEGORIAS.LANCHONETE)}
+                className={`px-4 py-2 rounded-lg text-sm font-medium ${
+                  selectedCategoria === CATEGORIAS.LANCHONETE
+                    ? "bg-white text-indigo-600 border-2 border-indigo-600"
+                    : "bg-gray-200 text-gray-700 hover:bg-gray-300"
+                }`}
+              >
+                Lanchonete
+              </button>
             </div>
 
             <div className="flex items-center gap-2">
@@ -172,7 +177,7 @@ const OrderManagement: React.FC = () => {
                 type="text"
                 id="searchIdCard"
                 value={searchIdCard}
-                onChange={(e) => setSearchIdCard(e.target.value)}
+                onChange={(e) => handleSearchIdChange(e.target.value)}
                 className="w-full sm:w-auto px-4 py-2 bg-white text-black border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-600"
                 placeholder="Digite o idCard"
               />
@@ -201,7 +206,10 @@ const OrderManagement: React.FC = () => {
                   </div>
                   <div className="flex-1 space-y-2">
                     {order.itens.map((item) => (
-                      <div key={item.id} className="flex justify-between items-center py-1 border-b border-gray-100">
+                      <div
+                        key={item.id}
+                        className="flex justify-between items-center py-1 border-b border-gray-100"
+                      >
                         <p className="text-gray-900">{item.Produto.nome}</p>
                         <span className="font-medium text-gray-700">
                           x{item.quantidade}
@@ -234,9 +242,7 @@ const OrderManagement: React.FC = () => {
               ))
             ) : (
               <div className="text-center py-8 text-gray-500">
-                {selectedCategoria
-                  ? `Não há pedidos pendentes na categoria ${selectedCategoria}`
-                  : "Não há pedidos pendentes"}
+                Não há pedidos pendentes na categoria {selectedCategoria}
               </div>
             )}
           </div>

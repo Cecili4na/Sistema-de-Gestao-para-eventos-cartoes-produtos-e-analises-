@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { supabase } from "~/supabase/supabaseClient";
-import { PageHeader, Card } from "./_layout.cartao";
+import { FormCard } from "~/components/FormCard";
 import { BackButton } from "~/components/BackButton";
 
 interface Card {
@@ -137,9 +137,7 @@ export default function RecarregarCartao() {
       <div className="max-w-2xl mx-auto">
         <BackButton to="/cartao" />
 
-        <PageHeader />
-
-        <Card title="Recarregar Cartão">
+        <FormCard title="Recarregar Cartão">
           <div className="p-6">
             {!confirmarRecarga ? (
               <form onSubmit={handleSubmit} className="space-y-6">
@@ -313,7 +311,7 @@ export default function RecarregarCartao() {
               </div>
             )}
           </div>
-        </Card>
+        </FormCard>
       </div>
     </div>
   );

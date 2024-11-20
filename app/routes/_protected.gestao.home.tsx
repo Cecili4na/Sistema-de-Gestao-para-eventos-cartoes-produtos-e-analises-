@@ -1,6 +1,6 @@
 import { redirect, type LoaderFunctionArgs } from "@remix-run/node";
-import { BackButton } from "~/components/BackButton";
 import { MenuCard } from "~/components/MenuCard";
+import { PageHeader } from "~/components/PageHeader";
 
 export function loader({ request }: LoaderFunctionArgs) {
   const cookie = request.headers.get("Cookie");
@@ -13,23 +13,10 @@ export function loader({ request }: LoaderFunctionArgs) {
 export default function GestaoHome() {
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100">
-      <div className="relative overflow-hidden">
-        <div className="absolute inset-0">
-          <div className="absolute inset-0 bg-gradient-to-r from-blue-600 to-indigo-600 opacity-90"></div>
-        </div>
-
-        <div className="relative px-4 py-16 sm:px-6 lg:px-8">
-          <BackButton to="/home" />
-          <div className="max-w-7xl mx-auto text-center">
-            <h1 className="text-4xl sm:text-6xl font-extrabold text-white mb-8">
-              Área de Gestão
-            </h1>
-            <p className="text-lg sm:text-xl text-blue-100 max-w-3xl mx-auto">
-              Visualize relatórios e análises detalhadas do seu evento
-            </p>
-          </div>
-        </div>
-      </div>
+      <PageHeader
+        title="Área de Gestão"
+        subtitle="Visualize relatórios e análises detalhadas do seu evento"
+      />
 
       <div className="max-w-7xl mx-auto px-4 py-12 sm:px-6 lg:px-8">
         <div className="grid grid-cols-1 md:grid-cols-3 gap-8">

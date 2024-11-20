@@ -2,7 +2,7 @@ import { useState } from "react";
 import { Form, Link, useLoaderData } from "@remix-run/react";
 import { json, LoaderFunctionArgs } from "@remix-run/node";
 import { supabase } from "~/supabase/supabaseClient";
-import { PageHeader, Card } from "./_layout.produto";
+import { FormCard } from "~/components/FormCard";
 
 interface Transaction {
   id: string;
@@ -38,7 +38,10 @@ export const loader = async ({ request }: LoaderFunctionArgs) => {
     return json<LoaderData>({ transactions: transactions || [], error: null });
   } catch (error) {
     console.error("Erro ao carregar transações:", error);
-    return json<LoaderData>({ transactions: [], error: "Erro ao carregar transações" });
+    return json<LoaderData>({
+      transactions: [],
+      error: "Erro ao carregar transações",
+    });
   }
 };
 
@@ -89,12 +92,7 @@ export default function VisualizarTransacoes() {
           </Link>
         </div>
 
-        <PageHeader
-          title="Acutis Data Modos"
-          subtitle="Visualização de Transações do Cartão"
-        />
-
-        <Card>
+        <FormCard title="Consultar Transações">
           <div className="p-6">
             {/* Formulário de Busca */}
             <Form method="get" className="mb-8">
@@ -162,11 +160,13 @@ export default function VisualizarTransacoes() {
                         <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
                           {transaction.nome}
                         </td>
-                        <td className={`px-6 py-4 whitespace-nowrap text-sm text-right ${
-                          transaction.valor < 0 
-                            ? "text-red-600 font-medium" 
-                            : "text-green-600 font-medium"
-                        }`}>
+                        <td
+                          className={`px-6 py-4 whitespace-nowrap text-sm text-right ${
+                            transaction.valor < 0
+                              ? "text-red-600 font-medium"
+                              : "text-green-600 font-medium"
+                          }`}
+                        >
                           {formatarValor(transaction.valor)}
                         </td>
                         <td className="px-6 py-4 whitespace-nowrap text-sm text-right text-gray-900">
@@ -187,7 +187,7 @@ export default function VisualizarTransacoes() {
               </div>
             )}
           </div>
-        </Card>
+        </FormCard>
       </div>
     </div>
   );

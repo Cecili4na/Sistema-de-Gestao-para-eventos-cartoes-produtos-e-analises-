@@ -1,19 +1,15 @@
 import { ActionCard } from "~/components/ActionCard";
-import { BackButton } from "~/components/BackButton";
+import { PageHeader } from "~/components/PageHeader";
 
 export default function PedidosDashboard() {
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 py-12 px-4 sm:px-6 lg:px-8">
-      <div className="max-w-7xl mx-auto">
-        {/* Header */}
-        <header className="text-center mb-12">
-          <h1 className="text-4xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-blue-600 to-indigo-600 mb-2">
-            Acutis Data Modos
-          </h1>
-          <p className="text-gray-600 text-lg">Sistema de Gestão de Pedidos</p>
-        </header>
-
-        {/* Cards de Ação Principais */}
+    <div className="bg-gradient-to-br from-blue-50 to-indigo-100">
+      <PageHeader
+        title="Gestão de Pedidos"
+        subtitle="Gerencie todos os pedidos do seu evento de forma simples e
+              eficiente."
+      />
+      <div className="max-w-7xl mx-auto px-4 py-16 sm:px-6 lg:px-8">
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-12">
           {/* Card de Realizar Venda */}
           <ActionCard
@@ -56,16 +52,11 @@ export default function PedidosDashboard() {
               </svg>
             }
             title="Visualizar Pedidos"
-            description="Consulte detalhes dos pedidos realizados."
+            description="Consulte detalhes e entregue os pedidos realizados."
             iconBgColor="bg-purple-100"
             iconHoverBgColor="group-hover:bg-purple-200"
             iconColor="text-purple-600"
           />
-        </div>
-
-        {/* Link para Voltar */}
-        <div className="flex justify-center">
-          <BackButton to="/home" />
         </div>
       </div>
     </div>

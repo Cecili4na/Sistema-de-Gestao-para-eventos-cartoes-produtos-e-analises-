@@ -1,30 +1,15 @@
 import { LuMinusCircle, LuPlusCircle } from "react-icons/lu";
-import { BackButton } from "~/components/BackButton";
 import { MenuCard } from "~/components/MenuCard";
+import { PageHeader } from "~/components/PageHeader";
 
 export default function Home() {
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100">
-      <div className="relative overflow-hidden">
-        <div className="absolute inset-0">
-          <div className="absolute inset-0 bg-gradient-to-r from-blue-600 to-indigo-600 opacity-90"></div>
-        </div>
-        <div className="relative px-4 py-16 sm:px-6 lg:px-8">
-          <div className="max-w-7xl mx-auto text-center">
-            <div className="flex justify-start mb-8">
-              <BackButton to="/home" />
-            </div>
-            <h1 className="text-4xl sm:text-6xl font-extrabold text-white mb-8">
-              Gestão de Cartões
-            </h1>
-
-            <p className="text-lg sm:text-xl text-blue-100 max-w-3xl mx-auto mb-12">
-              Gerencie todos os cartões do seu evento de forma simples e
-              eficiente.
-            </p>
-          </div>
-        </div>
-      </div>
+    <div className="bg-gradient-to-br from-blue-50 to-indigo-100">
+      <PageHeader
+        title="Gestão de Cartões"
+        subtitle="Gerencie todos os cartões do seu evento de forma simples e
+              eficiente."
+      />
 
       <div className="max-w-7xl mx-auto px-4 py-16 sm:px-6 lg:px-8">
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 gap-8">
