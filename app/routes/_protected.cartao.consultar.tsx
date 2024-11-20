@@ -131,9 +131,9 @@ export default function ConsultarCartao() {
     <div className="flex flex-col min-h-screen items-center justify-center bg-blue-100 px-4 py-8 sm:px-6 lg:px-8">
       <div className="w-full max-w-md space-y-6 mb-8">
         <div className="text-center">
-        <div className="flex justify-start mb-8">
-              <BackButton to="/cartao" />
-            </div>
+          <div className="flex justify-start mb-8">
+            <BackButton to="/cartao" />
+          </div>
           <h1 className="text-2xl sm:text-3xl md:text-4xl font-bold text-blue-500 mb-4">
             Consultar Cartão
           </h1>
@@ -182,7 +182,7 @@ export default function ConsultarCartao() {
           </div>
 
           {cartaoEncontrado && (
-            <div className="bg-green-50 p-4 rounded-lg space-y-4">
+            <div className="bg-green-50 p-4 rounded-lg space-y-4 text-black">
               <h3 className="text-lg sm:text-xl font-bold text-center">
                 Cartão Encontrado
               </h3>

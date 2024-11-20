@@ -37,17 +37,19 @@ export default function Home() {
         </div>
 
         <div className="relative px-4 py-16 sm:px-6 lg:px-8">
-         <div className="max-w-7xl mx-auto text-center">
-          <img
-            src="/logo.png"
-            alt="AcutisDataModos Logo"
-            className="h-40 mx-auto"
-          />
+          <div className="max-w-7xl mx-auto text-center">
+            <img
+              src="/logo.png"
+              alt="AcutisDataModos Logo"
+              className="h-40 mx-auto"
+            />
             <h1 className="text-4xl sm:text-6xl font-extrabold text-white mb-6">
               AcutisDataModos
             </h1>
             <p className="text-lg sm:text-xl text-blue-100 max-w-3xl mx-auto mb-8">
-            Plataforma de gestão para eventos católicos, guiada pelos princípios do beato Carlo Acutis, usando soluções tecnológicas a serviço da evangelização.
+              Plataforma de gestão para eventos católicos, guiada pelos
+              princípios do beato Carlo Acutis, usando soluções tecnológicas a
+              serviço da evangelização.
             </p>
           </div>
         </div>
@@ -75,22 +77,19 @@ export default function Home() {
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
           <MenuCard
-            to="/produto"
+            to="/pedido"
             icon={
               <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path
                   strokeLinecap="round"
                   strokeLinejoin="round"
                   strokeWidth="2"
-                  d="M12 6v6m0 0v6m0-6h6m-6 0H6"
+                  d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4"
                 />
               </svg>
             }
-            title="Produtos"
-            description="Adicione, edite e visualize os produtos do seu encontro de forma simples e intuitiva."
-            iconBgColor="bg-blue-100"
-            iconColor="text-blue-600"
-            textColor="text-blue-600"
+            title="Pedidos"
+            description="Acompanhe e gerencie todos os pedidos vigentes do seu evento em tempo real."
           />
 
           <MenuCard
@@ -110,19 +109,22 @@ export default function Home() {
           />
 
           <MenuCard
-            to="/pedido"
+            to="/produto"
             icon={
               <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path
                   strokeLinecap="round"
                   strokeLinejoin="round"
                   strokeWidth="2"
-                  d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4"
+                  d="M12 6v6m0 0v6m0-6h6m-6 0H6"
                 />
               </svg>
             }
-            title="Pedidos"
-            description="Acompanhe e gerencie todos os pedidos vigentes do seu evento em tempo real."
+            title="Produtos"
+            description="Adicione, edite e visualize os produtos do seu encontro de forma simples e intuitiva."
+            iconBgColor="bg-blue-100"
+            iconColor="text-blue-600"
+            textColor="text-blue-600"
           />
 
           <MenuCard
