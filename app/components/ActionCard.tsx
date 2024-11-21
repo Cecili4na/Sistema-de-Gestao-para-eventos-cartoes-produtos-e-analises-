@@ -23,6 +23,7 @@ export function ActionCard({
   return (
     <Link
       to={to}
+      prefetch="intent"
       className="group bg-white rounded-2xl shadow-lg overflow-hidden transform transition-all duration-300 hover:scale-105 hover:shadow-xl"
     >
       <div className="p-6">

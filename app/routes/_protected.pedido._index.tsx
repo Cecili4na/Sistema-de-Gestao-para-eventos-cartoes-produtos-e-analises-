@@ -3,13 +3,13 @@ import { PageHeader } from "~/components/PageHeader";
 
 export default function PedidosDashboard() {
   return (
-    <div className="bg-gradient-to-br from-blue-50 to-indigo-100">
+    <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 flex flex-col">
       <PageHeader
         title="Gestão de Pedidos"
         subtitle="Gerencie todos os pedidos do seu evento de forma simples e
               eficiente."
       />
-      <div className="max-w-7xl mx-auto px-4 py-16 sm:px-6 lg:px-8">
+      <div className="flex-1 max-w-7xl mx-auto px-4 py-16 sm:px-6 lg:px-8">
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-12">
           {/* Card de Realizar Venda */}
           <ActionCard

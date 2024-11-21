@@ -33,13 +33,12 @@ export default function ProdutosDashboard() {
   };
 
   return (
-    <div className="bg-gradient-to-br from-blue-50 to-indigo-100">
+    <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 flex flex-col">
       <PageHeader
         title="Gestão de Produtos"
-        subtitle="Gerencie todos os produtos do seu evento de forma simples e
-              eficiente."
+        subtitle="Gerencie todos os produtos do seu evento de forma simples e eficiente."
       />
-      <div className="max-w-7xl mx-auto px-4 py-16 sm:px-6 lg:px-8">
+      <div className="flex-1 max-w-7xl mx-auto px-4 py-16 sm:px-6 lg:px-8 w-full">
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-12">
           <ActionCard
             to="/produto/cadastrar"
@@ -170,10 +169,10 @@ export default function ProdutosDashboard() {
                 </tbody>
               </table>
 
-              {/* Rodapé da Tabela com Link para Ver Todos */}
               <div className="bg-gray-50 px-6 py-4">
                 <Link
                   to="/produto/visualizar"
+                  prefetch="intent"
                   className="text-sm font-medium text-indigo-600 hover:text-indigo-500 flex items-center justify-center"
                 >
                   Ver todos os produtos

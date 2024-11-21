@@ -1,11 +1,11 @@
 // ~/routes/_protected.tsx
 import { type LoaderFunctionArgs } from "@remix-run/node";
-import { Outlet } from "@remix-run/react";
+import { json, Outlet } from "@remix-run/react";
 import { requireAuth } from "~/hook/withAuth";
 
 export async function loader({ request }: LoaderFunctionArgs) {
   await requireAuth(request);
-  return null;
+  return json({ ok: true });
 }
 
 export default function ProtectedLayout() {

@@ -1,8 +1,14 @@
+/* eslint-disable react-hooks/exhaustive-deps */
 import { type ActionFunctionArgs, redirect } from "@remix-run/node";
-import { Form, useActionData } from "@remix-run/react";
-import { useState } from "react";
+import { Form, useActionData, useFetcher } from "@remix-run/react";
+import { useState, useEffect } from "react";
 import { Eye, EyeOff } from "lucide-react";
 import { supabase } from "~/supabase/supabaseClient";
+import { json } from "@remix-run/node";
+
+export async function loader() {
+  return json({ ok: true });
+}
 
 export async function action({ request }: ActionFunctionArgs) {
   const formData = await request.formData();
@@ -37,6 +43,12 @@ const LoginPage = () => {
   const actionData = useActionData<typeof action>();
   const [showPassword, setShowPassword] = useState(false);
   const [email, setEmail] = useState("");
+
+  const homeFetcher = useFetcher();
+
+  useEffect(() => {
+    homeFetcher.load("/home");
+  }, []);
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 flex flex-col items-center justify-center p-4">

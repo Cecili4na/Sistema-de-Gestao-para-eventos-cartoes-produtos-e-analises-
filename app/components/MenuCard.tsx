@@ -23,6 +23,7 @@ export function MenuCard({
   return (
     <Link
       to={to}
+      prefetch="intent"
       className="block bg-white rounded-xl sm:rounded-2xl p-4 sm:p-6 md:p-8 shadow-lg hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1 min-h-[120px] touch-manipulation"
     >
       <div className="flex gap-4 sm:block">

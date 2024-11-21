@@ -21,4 +21,21 @@ export default defineConfig({
     }),
     tsconfigPaths(),
   ],
+  server: {
+    port: 3000,
+    host: true,
+  },
+  build: {
+    sourcemap: true,
+    rollupOptions: {
+      output: {
+        manualChunks: {
+          vendor: ["react", "react-dom", "@remix-run/react"],
+        },
+      },
+    },
+  },
+  optimizeDeps: {
+    include: ["@remix-run/react", "react", "react-dom"],
+  },
 });

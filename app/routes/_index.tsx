@@ -1,11 +1,17 @@
 import { useState, useEffect } from "react";
 import { Link } from "@remix-run/react";
+import JHSLogo from "~/components/JHSLogo";
+import { json } from "@remix-run/node";
 
 const phrases = [
   "Todos nascemos originais, mas muitos de nós morremos como fotocópias.",
   "A única coisa que devemos pedir a Deus em oração é o desejo de ser santos.",
   "Estar sempre unido a Jesus, esse é o meu projeto de vida.",
 ];
+
+export async function loader() {
+  return json({ ok: true });
+}
 
 const LandingPage = () => {
   const [currentPhraseIndex, setCurrentPhraseIndex] = useState(0);
@@ -27,24 +33,7 @@ const LandingPage = () => {
     <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 flex flex-col items-center justify-center relative overflow-hidden">
       {/* Background Pattern */}
       <div className="absolute inset-0 flex items-center justify-center opacity-5">
-        <svg className="w-4/5 h-4/5" viewBox="0 0 100 100">
-          <path
-            d="M50 10 L50 90 M30 50 L70 50"
-            stroke="currentColor"
-            strokeWidth="1"
-            fill="none"
-            className="text-blue-600"
-          />
-          <circle
-            cx="50"
-            cy="50"
-            r="40"
-            stroke="currentColor"
-            strokeWidth="1"
-            fill="none"
-            className="text-blue-600"
-          />
-        </svg>
+        <JHSLogo width="w-4/5" height="h-4/5" />
       </div>
 
       <div className="z-10 text-center p-8">
@@ -97,4 +86,3 @@ const LandingPage = () => {
 };
 
 export default LandingPage;
-
