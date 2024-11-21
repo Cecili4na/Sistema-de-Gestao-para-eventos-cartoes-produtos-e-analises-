@@ -25,7 +25,7 @@ export const links: LinksFunction = () => [
 export const meta: MetaFunction = () => {
   const title = "Acutis Data Modos";
   const description = "Sistema de Gestão para Eventos Católicos.";
-  const canonicalUrl = "https://adm-alpha.vercel.app";
+  const canonicalUrl = "https://acutis-dm.vercel.app";
   const imageUrl = `${canonicalUrl}/og-image.png`;
 
   return [
