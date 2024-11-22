@@ -29,9 +29,11 @@ export default defineConfig({
     sourcemap: true,
     rollupOptions: {
       output: {
-        manualChunks: {
-          vendor: ["react", "react-dom", "@remix-run/react"],
-        },
+        manualChunks(id) {
+          if (id.includes('node_modules')) {
+            return 'vendor';
+          }
+        }
       },
     },
   },
