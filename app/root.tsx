@@ -45,7 +45,7 @@ export const meta: MetaFunction = () => {
 
     { name: "keywords", content: "gestão,eventos,católico,igreja,acutis" },
     { name: "author", content: "ADM" },
-    { name: "theme-color", content: "#3F50E7" },
+    { name: "theme-color", content: "#ECF3FF" },
     {
       name: "viewport",
       content: "width=device-width,initial-scale=1,viewport-fit=cover",
