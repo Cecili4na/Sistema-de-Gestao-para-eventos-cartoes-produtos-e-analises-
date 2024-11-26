@@ -1,48 +1,14 @@
 import {
-  json,
   Links,
   Meta,
   Outlet,
   Scripts,
   ScrollRestoration,
-  useLoaderData,
- } from "@remix-run/react";
- import { redirect } from "@remix-run/node";
- import type {
-  LinksFunction,
-  LoaderFunctionArgs,
-  MetaFunction,
- } from "@remix-run/node";
- import { getUserId } from "~/services/session.server";
- import { supabase } from "~/supabase/supabaseClient";
- 
- import "./tailwind.css";
- 
- export async function loader({ request }: LoaderFunctionArgs) {
-  if (!process.env.SESSION_SECRET) {
-    throw new Error("SESSION_SECRET must be set");
-  }
- 
-  const url = new URL(request.url);
-  const userId = await getUserId(request);
-  const { data: { session } } = await supabase.auth.getSession();
- 
-  const publicRoutes = ["/login", "/register", "/"];
-  const isPublicRoute = publicRoutes.some(route => url.pathname.startsWith(route));
- 
-  if (!userId && !session?.user && !isPublicRoute) {
-    return redirect("/login");
-  }
- 
-  return json({
-    ENV: {
-      NODE_ENV: process.env.NODE_ENV,
-    },
-    isAuthenticated: !!userId || !!session?.user
-  });
- }
- 
- export const links: LinksFunction = () => [
+} from "@remix-run/react";
+import type { LinksFunction, MetaFunction } from "@remix-run/node";
+import "./tailwind.css";
+
+export const links: LinksFunction = () => [
   { rel: "preconnect", href: "https://fonts.googleapis.com" },
   {
     rel: "preconnect",
@@ -53,14 +19,14 @@ import {
     rel: "stylesheet",
     href: "https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&display=swap",
   },
- ];
- 
- export const meta: MetaFunction = () => {
+];
+
+export const meta: MetaFunction = () => {
   const title = "Acutis Data Modos";
   const description = "Sistema de Gestão para Eventos Católicos.";
   const canonicalUrl = "https://acutis-dm.vercel.app";
   const imageUrl = `${canonicalUrl}/og-image.png`;
- 
+
   return [
     { title },
     { name: "description", content: description },
@@ -83,9 +49,9 @@ import {
     { name: "format-detection", content: "telephone=no" },
     { charSet: "utf-8" },
   ];
- };
- 
- export function Layout({ children }: { children: React.ReactNode }) {
+};
+
+export function Layout({ children }: { children: React.ReactNode }) {
   return (
     <html
       lang="pt-BR"
@@ -113,9 +79,8 @@ import {
       </body>
     </html>
   );
- }
- 
- export default function App() {
-  const { isAuthenticated } = useLoaderData<typeof loader>();
-  return <Outlet context={{ isAuthenticated }} />;
- }
+}
+
+export default function App() {
+  return <Outlet />;
+}
