@@ -46,15 +46,12 @@ export async function action({ request }: ActionFunctionArgs) {
 export async function loader({ request }: LoaderFunctionArgs) {
   const userId = await getUserId(request);
 
-  if (userId) {
-    return redirect("/home");
-  }
-
   const {
     data: { session },
   } = await supabase.auth.getSession();
-  if (session) {
-    await supabase.auth.signOut();
+
+  if (userId || session?.user) {
+    return redirect("/home");
   }
 
   return null;

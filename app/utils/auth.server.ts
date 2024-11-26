@@ -1,21 +1,23 @@
 import { redirect } from "@remix-run/node";
 import { supabase } from "~/supabase/supabaseClient";
-import { getUserId } from "~/services/session.server";
+import { getUserId, createUserSession } from "~/services/session.server";
 
 export async function requireAuth(request: Request) {
   try {
     const userId = await getUserId(request);
 
-    if (!userId) {
-      const {
-        data: { session },
-        error: sessionError,
-      } = await supabase.auth.getSession();
+    const {
+      data: { session },
+      error: sessionError,
+    } = await supabase.auth.getSession();
 
-      if (sessionError || !session?.user) {
-        throw redirect("/login");
-      }
+    if (sessionError) throw redirect("/login");
 
+    if (!userId && session?.user) {
+      throw await createUserSession(session.user.id, "/home");
+    }
+
+    if (!userId && !session?.user) {
       throw redirect("/login");
     }
 
@@ -24,12 +26,13 @@ export async function requireAuth(request: Request) {
       error: userError,
     } = await supabase.auth.getUser();
 
-    if (userError || !user || user.id !== userId) {
+    if (userError || !user || (userId && user.id !== userId)) {
       throw redirect("/login");
     }
 
     return user;
   } catch (error) {
+    if (error instanceof Response) throw error;
     throw redirect("/login");
   }
 }
