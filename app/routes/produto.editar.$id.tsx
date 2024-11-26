@@ -96,6 +96,7 @@ export async function action({ request, params }: ActionFunctionArgs) {
   }
 }
 
+
 export default function EditarProduto() {
   const { produto, error } = useLoaderData<typeof loader>();
   const actionData = useActionData<ActionData>();
