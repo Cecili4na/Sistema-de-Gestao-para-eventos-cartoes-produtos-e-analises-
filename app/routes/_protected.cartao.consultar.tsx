@@ -22,7 +22,6 @@ export default function ConsultarCartao() {
   const [telefoneEdicao, setTelefoneEdicao] = useState<string>("");
 
   async function buscarCartao() {
-    // Validação de campos vazios com mensagem específica por tipo
     if (!termoBusca.trim()) {
       switch (tipoBusca) {
         case "idCard":
