@@ -20,7 +20,7 @@ export const meta = () => {
   ];
 };
 
-// Função para formatar valores monetários
+
 function formatarValor(valor: number | string): string {
   const numero = typeof valor === "string" ? parseFloat(valor) : valor;
   return numero.toLocaleString("pt-BR", {
