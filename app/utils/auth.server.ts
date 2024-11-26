@@ -3,28 +3,33 @@ import { supabase } from "~/supabase/supabaseClient";
 import { getUserId } from "~/services/session.server";
 
 export async function requireAuth(request: Request) {
-  const userId = await getUserId(request);
+  try {
+    const userId = await getUserId(request);
 
-  if (!userId) {
-    const {
-      data: { session },
-    } = await supabase.auth.getSession();
+    if (!userId) {
+      const {
+        data: { session },
+        error: sessionError,
+      } = await supabase.auth.getSession();
 
-    if (!session?.user) {
+      if (sessionError || !session?.user) {
+        throw redirect("/login");
+      }
+
       throw redirect("/login");
     }
 
-    return session.user;
-  }
+    const {
+      data: { user },
+      error: userError,
+    } = await supabase.auth.getUser();
 
-  const {
-    data: { user },
-    error,
-  } = await supabase.auth.getUser();
+    if (userError || !user || user.id !== userId) {
+      throw redirect("/login");
+    }
 
-  if (error || !user) {
+    return user;
+  } catch (error) {
     throw redirect("/login");
   }
-
-  return user;
 }

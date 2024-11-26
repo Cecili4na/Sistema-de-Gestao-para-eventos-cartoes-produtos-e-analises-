@@ -40,17 +40,6 @@ export async function getUserId(request: Request) {
   return userId;
 }
 
-export async function requireUserId(
-  request: Request,
-  redirectTo: string = "/login"
-) {
-  const userId = await getUserId(request);
-  if (!userId) {
-    throw redirect(redirectTo);
-  }
-  return userId;
-}
-
 export async function logout(request: Request) {
   const session = await getUserSession(request);
   return redirect("/login", {

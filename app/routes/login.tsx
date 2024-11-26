@@ -10,20 +10,13 @@ import { Eye, EyeOff } from "lucide-react";
 import { supabase } from "~/supabase/supabaseClient";
 import { createUserSession, getUserId } from "~/services/session.server";
 
-export async function loader({ request }: LoaderFunctionArgs) {
-  const userId = await getUserId(request);
-  if (userId) {
-    return redirect("/home");
-  }
-  return null;
-}
-
 export async function action({ request }: ActionFunctionArgs) {
   const formData = await request.formData();
   const email = formData.get("email") as string;
   const password = formData.get("password") as string;
 
   try {
+    // Primeiro fazemos login no Supabase
     const { data, error: signInError } = await supabase.auth.signInWithPassword(
       {
         email,
@@ -33,10 +26,12 @@ export async function action({ request }: ActionFunctionArgs) {
 
     if (signInError) throw signInError;
 
-    if (data?.user) {
-      // Create session and redirect
-      return createUserSession(data.user.id, "/home");
+    if (!data?.user) {
+      throw new Error("No user returned after login");
     }
+
+    // Se o login foi bem sucedido, criamos a sessão
+    return createUserSession(data.user.id, "/home");
   } catch (err) {
     const error = err as Error;
     return {
@@ -46,6 +41,23 @@ export async function action({ request }: ActionFunctionArgs) {
           : "Ocorreu um erro ao fazer login. Tente novamente.",
     };
   }
+}
+
+export async function loader({ request }: LoaderFunctionArgs) {
+  const userId = await getUserId(request);
+
+  if (userId) {
+    return redirect("/home");
+  }
+
+  const {
+    data: { session },
+  } = await supabase.auth.getSession();
+  if (session) {
+    await supabase.auth.signOut();
+  }
+
+  return null;
 }
 
 const LoginPage = () => {
