@@ -1,5 +1,10 @@
 import { useState, useEffect, useCallback } from "react";
-import { Form, useActionData, useLoaderData } from "@remix-run/react";
+import {
+  Form,
+  useActionData,
+  useLoaderData,
+  useNavigation,
+} from "@remix-run/react";
 import { json, ActionFunctionArgs } from "@remix-run/node";
 import { supabase } from "~/supabase/supabaseClient";
 import { FormCard } from "~/components/FormCard";
@@ -202,11 +207,28 @@ export async function action({ request }: ActionFunctionArgs) {
 export default function RealizarVenda() {
   const { produtos, error } = useLoaderData<typeof loader>();
   const actionData = useActionData<typeof action>();
+  const navigation = useNavigation();
   const [cartItems, setCartItems] = useState<CartItem[]>([]);
   const [searchTerm, setSearchTerm] = useState("");
   const [idCard, setIdCard] = useState("");
   const [selectedCategoria, setSelectedCategoria] =
     useState<CategoriaType>(null);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [submitCount, setSubmitCount] = useState(0);
+  const isProcessing = navigation.state === "submitting";
+
+  // Previne submissões durante o processamento
+  useEffect(() => {
+    if (isProcessing) {
+      setIsSubmitting(true);
+    } else {
+      // Reseta o estado após um delay para melhor UX
+      const timer = setTimeout(() => {
+        setIsSubmitting(false);
+      }, 1000);
+      return () => clearTimeout(timer);
+    }
+  }, [isProcessing]);
 
   // Reset do formulário após venda bem-sucedida
   useEffect(() => {
@@ -215,6 +237,7 @@ export default function RealizarVenda() {
       setIdCard("");
       setSearchTerm("");
       setSelectedCategoria(null);
+      setSubmitCount(0);
     }
   }, [actionData]);
 
@@ -249,14 +272,28 @@ export default function RealizarVenda() {
   );
 
   const handleSubmit = useCallback(
-    (e: React.FormEvent<HTMLFormElement>) => {
+    (e: { preventDefault: () => void }) => {
       if (!selectedCategoria) {
         e.preventDefault();
         alert("Selecione uma categoria");
         return;
       }
+
+      if (isSubmitting || isProcessing) {
+        e.preventDefault();
+        return;
+      }
+
+      setSubmitCount((prev) => prev + 1);
+
+      if (submitCount > 0) {
+        e.preventDefault();
+        return;
+      }
+
+      setIsSubmitting(true);
     },
-    [selectedCategoria]
+    [selectedCategoria, isSubmitting, isProcessing, submitCount]
   );
 
   // Filtro de produtos baseado na busca e categoria
@@ -657,11 +694,50 @@ export default function RealizarVenda() {
                 <button
                   type="submit"
                   disabled={
-                    cartItems.length === 0 || !idCard || !selectedCategoria
+                    cartItems.length === 0 ||
+                    !idCard ||
+                    !selectedCategoria ||
+                    isSubmitting ||
+                    isProcessing
                   }
-                  className="w-full bg-gradient-to-r from-indigo-600 to-blue-600 text-white py-3 px-6 rounded-lg font-medium hover:from-indigo-700 hover:to-blue-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 transform transition-all duration-200 hover:scale-[1.02] disabled:opacity-50 disabled:cursor-not-allowed"
+                  className={`w-full bg-gradient-to-r from-indigo-600 to-blue-600 text-white py-3 px-6 rounded-lg font-medium 
+                  ${
+                    !isSubmitting && !isProcessing
+                      ? "hover:from-indigo-700 hover:to-blue-700 hover:scale-[1.02]"
+                      : ""
+                  }
+                  focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 
+                  transform transition-all duration-200 
+                  disabled:opacity-50 disabled:cursor-not-allowed
+                  relative
+                `}
                 >
-                  Finalizar Venda
+                  {isSubmitting || isProcessing ? (
+                    <div className="flex items-center justify-center">
+                      <svg
+                        className="animate-spin h-5 w-5 mr-3"
+                        viewBox="0 0 24 24"
+                      >
+                        <circle
+                          className="opacity-25"
+                          cx="12"
+                          cy="12"
+                          r="10"
+                          stroke="currentColor"
+                          strokeWidth="4"
+                          fill="none"
+                        />
+                        <path
+                          className="opacity-75"
+                          fill="currentColor"
+                          d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+                        />
+                      </svg>
+                      Processando...
+                    </div>
+                  ) : (
+                    "Finalizar Venda"
+                  )}
                 </button>
               </Form>
             </div>

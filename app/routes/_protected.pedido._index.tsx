@@ -3,15 +3,14 @@ import { PageHeader } from "~/components/PageHeader";
 
 export default function PedidosDashboard() {
   return (
-    <div className="bg-gradient-to-br from-blue-50 to-indigo-100">
+    <main className="min-h-screen relative bg-gradient-to-br from-blue-50 to-indigo-100 pb-16">
       <PageHeader
         title="Gestão de Pedidos"
-        subtitle="Gerencie todos os pedidos do seu evento de forma simples e
-              eficiente."
+        subtitle="Gerencie todos os pedidos do seu evento de forma simples e eficiente."
       />
+
       <div className="max-w-7xl mx-auto px-4 py-16 sm:px-6 lg:px-8">
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-12">
-          {/* Card de Realizar Venda */}
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           <ActionCard
             to="/pedido/venda"
             icon={
@@ -31,9 +30,11 @@ export default function PedidosDashboard() {
             }
             title="Realizar Nova Venda"
             description="Registre uma nova venda no sistema."
+            iconBgColor="bg-blue-100"
+            iconHoverBgColor="group-hover:bg-blue-200"
+            iconColor="text-blue-600"
           />
 
-          {/* Card de Visualização de Pedidos */}
           <ActionCard
             to="/pedido/visualizar"
             icon={
@@ -59,6 +60,12 @@ export default function PedidosDashboard() {
           />
         </div>
       </div>
-    </div>
+
+      <footer className="absolute bottom-0 w-full py-4">
+        <div className="text-center text-sm text-gray-600">
+          <p>© 2024 AcutisDataModos</p>
+        </div>
+      </footer>
+    </main>
   );
 }

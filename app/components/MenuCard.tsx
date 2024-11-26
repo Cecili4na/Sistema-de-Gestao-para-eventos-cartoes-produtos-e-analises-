@@ -23,13 +23,18 @@ export function MenuCard({
   return (
     <Link
       to={to}
+      prefetch="intent"
       className="block bg-white rounded-xl sm:rounded-2xl p-4 sm:p-6 md:p-8 shadow-lg hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1 min-h-[120px] touch-manipulation"
     >
       <div className="flex gap-4 sm:block">
         <div
-          className={`h-10 w-10 sm:h-12 sm:w-12 ${iconBgColor} rounded-lg sm:rounded-xl flex items-center justify-center sm:mb-6 shrink-0`}
+          className={`flex items-center justify-center h-10 w-10 sm:h-12 sm:w-12 ${iconBgColor} rounded-lg sm:rounded-xl sm:mb-6 shrink-0`}
         >
-          <div className={`h-5 w-5 sm:h-6 sm:w-6 ${iconColor}`}>{icon}</div>
+          <div
+            className={`w-6 h-6 flex items-center justify-center ${iconColor}`}
+          >
+            {icon}
+          </div>
         </div>
         <div className="flex-1">
           <h3 className="text-lg sm:text-xl font-bold text-gray-900 mb-2 sm:mb-4">

@@ -1,8 +1,14 @@
-import { type ActionFunctionArgs, redirect } from "@remix-run/node";
-import { Form, useActionData } from "@remix-run/react";
-import { useState } from "react";
+/* eslint-disable react-hooks/exhaustive-deps */
+import {
+  type ActionFunctionArgs,
+  LoaderFunctionArgs,
+  redirect,
+} from "@remix-run/node";
+import { Form, useActionData, useFetcher } from "@remix-run/react";
+import { useState, useEffect } from "react";
 import { Eye, EyeOff } from "lucide-react";
 import { supabase } from "~/supabase/supabaseClient";
+import { createUserSession, getUserId } from "~/services/session.server";
 
 export async function action({ request }: ActionFunctionArgs) {
   const formData = await request.formData();
@@ -10,6 +16,7 @@ export async function action({ request }: ActionFunctionArgs) {
   const password = formData.get("password") as string;
 
   try {
+    // Primeiro fazemos login no Supabase
     const { data, error: signInError } = await supabase.auth.signInWithPassword(
       {
         email,
@@ -19,9 +26,12 @@ export async function action({ request }: ActionFunctionArgs) {
 
     if (signInError) throw signInError;
 
-    if (data?.user) {
-      return redirect("/home");
+    if (!data?.user) {
+      throw new Error("No user returned after login");
     }
+
+    // Se o login foi bem sucedido, criamos a sessão
+    return createUserSession(data.user.id, "/home");
   } catch (err) {
     const error = err as Error;
     return {
@@ -33,10 +43,33 @@ export async function action({ request }: ActionFunctionArgs) {
   }
 }
 
+export async function loader({ request }: LoaderFunctionArgs) {
+  const userId = await getUserId(request);
+
+  if (userId) {
+    return redirect("/home");
+  }
+
+  const {
+    data: { session },
+  } = await supabase.auth.getSession();
+  if (session) {
+    await supabase.auth.signOut();
+  }
+
+  return null;
+}
+
 const LoginPage = () => {
   const actionData = useActionData<typeof action>();
   const [showPassword, setShowPassword] = useState(false);
   const [email, setEmail] = useState("");
+
+  const homeFetcher = useFetcher();
+
+  useEffect(() => {
+    homeFetcher.load("/home");
+  }, []);
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 flex flex-col items-center justify-center p-4">

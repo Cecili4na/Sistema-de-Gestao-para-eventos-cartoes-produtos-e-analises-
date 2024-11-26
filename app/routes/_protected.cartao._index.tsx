@@ -4,7 +4,7 @@ import { PageHeader } from "~/components/PageHeader";
 
 export default function Home() {
   return (
-    <div className="bg-gradient-to-br from-blue-50 to-indigo-100">
+    <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 flex flex-col">
       <PageHeader
         title="Gestão de Cartões"
         subtitle="Gerencie todos os cartões do seu evento de forma simples e

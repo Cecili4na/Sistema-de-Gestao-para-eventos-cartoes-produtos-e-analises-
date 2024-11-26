@@ -2,17 +2,13 @@
 import { Form } from "@remix-run/react";
 import { redirect, type ActionFunctionArgs } from "@remix-run/node";
 import { supabase } from "~/supabase/supabaseClient";
+import { logout } from "~/services/session.server";
 import { LogOut } from "lucide-react";
 import { MenuCard } from "~/components/MenuCard";
 
 export async function action({ request }: ActionFunctionArgs) {
-  try {
-    await supabase.auth.signOut();
-    return redirect("/");
-  } catch (error) {
-    console.error("Erro ao fazer logout:", error);
-    return redirect("/login");
-  }
+  await supabase.auth.signOut();
+  return logout(request);
 }
 
 export default function Home() {
@@ -76,10 +72,15 @@ export default function Home() {
         </h2>
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-          <MenuCard
+        <MenuCard
             to="/pedido"
             icon={
-              <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <svg
+                className="h-6 w-6"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
                 <path
                   strokeLinecap="round"
                   strokeLinejoin="round"
@@ -92,10 +93,15 @@ export default function Home() {
             description="Acompanhe e gerencie todos os pedidos vigentes do seu evento em tempo real."
           />
 
-          <MenuCard
+<MenuCard
             to="/cartao"
             icon={
-              <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <svg
+                className="h-6 w-6"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
                 <path
                   strokeLinecap="round"
                   strokeLinejoin="round"
@@ -111,7 +117,12 @@ export default function Home() {
           <MenuCard
             to="/produto"
             icon={
-              <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <svg
+                className="h-6 w-6"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
                 <path
                   strokeLinecap="round"
                   strokeLinejoin="round"
@@ -130,7 +141,12 @@ export default function Home() {
           <MenuCard
             to="/gestao/auth"
             icon={
-              <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <svg
+                className="h-6 w-6"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
                 <path
                   strokeLinecap="round"
                   strokeLinejoin="round"
