@@ -2,17 +2,13 @@
 import { Form } from "@remix-run/react";
 import { redirect, type ActionFunctionArgs } from "@remix-run/node";
 import { supabase } from "~/supabase/supabaseClient";
+import { logout } from "~/services/session.server";
 import { LogOut } from "lucide-react";
 import { MenuCard } from "~/components/MenuCard";
 
 export async function action({ request }: ActionFunctionArgs) {
-  try {
-    await supabase.auth.signOut();
-    return redirect("/");
-  } catch (error) {
-    console.error("Erro ao fazer logout:", error);
-    return redirect("/login");
-  }
+  await supabase.auth.signOut();
+  return logout(request);
 }
 
 export default function Home() {

@@ -28,9 +28,13 @@ export function MenuCard({
     >
       <div className="flex gap-4 sm:block">
         <div
-          className={`h-10 w-10 sm:h-12 sm:w-12 ${iconBgColor} rounded-lg sm:rounded-xl flex items-center justify-center sm:mb-6 shrink-0`}
+          className={`flex items-center justify-center h-10 w-10 sm:h-12 sm:w-12 ${iconBgColor} rounded-lg sm:rounded-xl sm:mb-6 shrink-0`}
         >
-          <div className={`h-5 w-5 sm:h-6 sm:w-6 ${iconColor}`}>{icon}</div>
+          <div
+            className={`w-6 h-6 flex items-center justify-center ${iconColor}`}
+          >
+            {icon}
+          </div>
         </div>
         <div className="flex-1">
           <h3 className="text-lg sm:text-xl font-bold text-gray-900 mb-2 sm:mb-4">

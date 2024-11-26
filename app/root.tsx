@@ -1,13 +1,31 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
 import {
+  json,
   Links,
   Meta,
   Outlet,
   Scripts,
   ScrollRestoration,
 } from "@remix-run/react";
-import type { LinksFunction, MetaFunction } from "@remix-run/node";
+import type {
+  LinksFunction,
+  LoaderFunctionArgs,
+  MetaFunction,
+} from "@remix-run/node";
 
 import "./tailwind.css";
+
+export async function loader({ request }: LoaderFunctionArgs) {
+  if (!process.env.SESSION_SECRET) {
+    throw new Error("SESSION_SECRET must be set");
+  }
+
+  return json({
+    ENV: {
+      NODE_ENV: process.env.NODE_ENV,
+    },
+  });
+}
 
 export const links: LinksFunction = () => [
   { rel: "preconnect", href: "https://fonts.googleapis.com" },

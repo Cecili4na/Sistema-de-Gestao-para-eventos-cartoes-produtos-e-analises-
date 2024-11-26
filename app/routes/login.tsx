@@ -1,13 +1,21 @@
 /* eslint-disable react-hooks/exhaustive-deps */
-import { type ActionFunctionArgs, redirect } from "@remix-run/node";
+import {
+  type ActionFunctionArgs,
+  LoaderFunctionArgs,
+  redirect,
+} from "@remix-run/node";
 import { Form, useActionData, useFetcher } from "@remix-run/react";
 import { useState, useEffect } from "react";
 import { Eye, EyeOff } from "lucide-react";
 import { supabase } from "~/supabase/supabaseClient";
-import { json } from "@remix-run/node";
+import { createUserSession, getUserId } from "~/services/session.server";
 
-export async function loader() {
-  return json({ ok: true });
+export async function loader({ request }: LoaderFunctionArgs) {
+  const userId = await getUserId(request);
+  if (userId) {
+    return redirect("/home");
+  }
+  return null;
 }
 
 export async function action({ request }: ActionFunctionArgs) {
@@ -26,7 +34,8 @@ export async function action({ request }: ActionFunctionArgs) {
     if (signInError) throw signInError;
 
     if (data?.user) {
-      return redirect("/home");
+      // Create session and redirect
+      return createUserSession(data.user.id, "/home");
     }
   } catch (err) {
     const error = err as Error;
