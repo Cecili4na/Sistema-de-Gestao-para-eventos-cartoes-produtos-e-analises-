@@ -1,12 +1,8 @@
-import { type LoaderFunctionArgs } from "@remix-run/node";
-import { json, Outlet } from "@remix-run/react";
+// app/routes/protected.tsx
+import { json, type LoaderFunction } from "@remix-run/node";
 import { requireAuth } from "~/utils/auth.server";
 
-export async function loader({ request }: LoaderFunctionArgs) {
-  const user = await requireAuth(request);
-  return json({ user });
-}
-
-export default function ProtectedLayout() {
-  return <Outlet />;
-}
+export const loader: LoaderFunction = async () => {
+  await requireAuth();
+  return json({ ok: true });
+};

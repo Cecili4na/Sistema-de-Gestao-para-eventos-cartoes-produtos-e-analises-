@@ -1,50 +1,42 @@
+// app/services/session.server.ts
 import { createCookieSessionStorage, redirect } from "@remix-run/node";
 
-if (!process.env.SESSION_SECRET) {
-  throw new Error("SESSION_SECRET must be set");
-}
-
-export const sessionStorage = createCookieSessionStorage({
+const sessionStorage = createCookieSessionStorage({
   cookie: {
     name: "_session",
     sameSite: "lax",
     path: "/",
     httpOnly: true,
-    secrets: [process.env.SESSION_SECRET],
+    secrets: [process.env.SESSION_SECRET as string],
     secure: process.env.NODE_ENV === "production",
-    maxAge: 60 * 60 * 24 * 30, // 30 dias
   },
 });
 
-export const { getSession, commitSession, destroySession } = sessionStorage;
-
 export async function createUserSession(userId: string, redirectTo: string) {
-  const session = await getSession();
+  const session = await sessionStorage.getSession();
   session.set("userId", userId);
-
   return redirect(redirectTo, {
     headers: {
-      "Set-Cookie": await commitSession(session),
+      "Set-Cookie": await sessionStorage.commitSession(session),
     },
   });
 }
 
-export async function getUserSession(request: Request) {
-  return getSession(request.headers.get("Cookie"));
-}
-
 export async function getUserId(request: Request) {
-  const session = await getUserSession(request);
+  const session = await getSession(request);
   const userId = session.get("userId");
-  if (!userId || typeof userId !== "string") return null;
   return userId;
 }
 
-export async function logout(request: Request) {
-  const session = await getUserSession(request);
+export async function getSession(request: Request) {
+  return sessionStorage.getSession(request.headers.get("Cookie"));
+}
+
+export async function destroySession(request: Request) {
+  const session = await getSession(request);
   return redirect("/login", {
     headers: {
-      "Set-Cookie": await destroySession(session),
+      "Set-Cookie": await sessionStorage.destroySession(session),
     },
   });
 }

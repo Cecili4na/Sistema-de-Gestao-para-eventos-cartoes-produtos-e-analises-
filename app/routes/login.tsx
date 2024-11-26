@@ -3,71 +3,80 @@ import {
   type ActionFunctionArgs,
   LoaderFunctionArgs,
   redirect,
-} from "@remix-run/node";
-import { Form, useActionData, useFetcher } from "@remix-run/react";
-import { useState, useEffect } from "react";
-import { Eye, EyeOff } from "lucide-react";
-import { supabase } from "~/supabase/supabaseClient";
-import { createUserSession, getUserId } from "~/services/session.server";
-
-export async function action({ request }: ActionFunctionArgs) {
+ } from "@remix-run/node";
+ import { Form, useActionData, useNavigation } from "@remix-run/react";
+ import { useState } from "react";
+ import { Eye, EyeOff } from "lucide-react";
+ import { supabase } from "~/supabase/supabaseClient";
+ import { createUserSession, getUserId } from "~/services/session.server";
+ 
+ export async function action({ request }: ActionFunctionArgs) {
   const formData = await request.formData();
   const email = formData.get("email") as string;
   const password = formData.get("password") as string;
-
+ 
+  if (!email || !password) {
+    return { error: "Email e senha são obrigatórios" };
+  }
+ 
+  if (!email?.includes("@")) {
+    return { error: "Email inválido" };
+  }
+ 
   try {
-    // Primeiro fazemos login no Supabase
-    const { data, error: signInError } = await supabase.auth.signInWithPassword(
-      {
-        email,
-        password,
+    const { data, error: signInError } = await supabase.auth.signInWithPassword({
+      email,
+      password,
+    });
+ 
+    if (signInError) {
+      if (signInError.message === "Invalid login credentials") {
+        return { error: "Email ou senha inválidos" };
       }
-    );
-
-    if (signInError) throw signInError;
-
-    if (!data?.user) {
-      throw new Error("No user returned after login");
+      throw signInError;
     }
-
-    // Se o login foi bem sucedido, criamos a sessão
+ 
+    if (!data?.user) {
+      throw new Error("Erro ao fazer login");
+    }
+ 
     return createUserSession(data.user.id, "/home");
   } catch (err) {
-    const error = err as Error;
+    console.error("Login error:", err);
     return {
-      error:
-        error.message === "Invalid login credentials"
-          ? "Email ou senha inválidos"
-          : "Ocorreu um erro ao fazer login. Tente novamente.",
+      error: "Ocorreu um erro ao fazer login. Tente novamente.",
     };
   }
-}
-
-export async function loader({ request }: LoaderFunctionArgs) {
-  const userId = await getUserId(request);
-
-  const {
-    data: { session },
-  } = await supabase.auth.getSession();
-
-  if (userId || session?.user) {
-    return redirect("/home");
+ }
+ 
+ export async function loader({ request }: LoaderFunctionArgs) {
+  try {
+    const userId = await getUserId(request);
+    const { data: { session } } = await supabase.auth.getSession();
+ 
+    if (userId && session?.user) {
+      return redirect("/home");
+    }
+ 
+    // Se tiver userId mas não tem session, limpa a session
+    if (userId && !session?.user) {
+      await supabase.auth.signOut();
+    }
+ 
+    return null;
+  } catch (error) {
+    console.error("Loader error:", error);
+    return null;
   }
-
-  return null;
-}
-
-const LoginPage = () => {
+ }
+ 
+ export default function LoginPage() {
   const actionData = useActionData<typeof action>();
+  const navigation = useNavigation();
+  const isSubmitting = navigation.state === "submitting";
   const [showPassword, setShowPassword] = useState(false);
   const [email, setEmail] = useState("");
-
-  const homeFetcher = useFetcher();
-
-  useEffect(() => {
-    homeFetcher.load("/home");
-  }, []);
-
+ 
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 flex flex-col items-center justify-center p-4">
       <div className="w-full max-w-md space-y-8">
@@ -79,7 +88,7 @@ const LoginPage = () => {
             Sistema de Gestão para Eventos Católicos
           </p>
         </div>
-
+ 
         <div className="bg-white rounded-2xl shadow-xl p-8 space-y-6">
           <Form method="post" className="space-y-6">
             {actionData?.error && (
@@ -100,7 +109,7 @@ const LoginPage = () => {
                 <p className="text-sm text-red-600">{actionData.error}</p>
               </div>
             )}
-
+ 
             <div className="space-y-2">
               <label
                 htmlFor="email"
@@ -137,7 +146,7 @@ const LoginPage = () => {
                 </p>
               )}
             </div>
-
+ 
             <div className="space-y-2">
               <label
                 htmlFor="password"
@@ -167,22 +176,21 @@ const LoginPage = () => {
                 </button>
               </div>
             </div>
-
+ 
             <button
               type="submit"
-              className="w-full bg-gradient-to-r from-blue-600 to-indigo-600 text-white py-3 px-6 rounded-lg font-medium hover:from-blue-700 hover:to-indigo-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transform transition-all duration-200 hover:scale-[1.02]"
+              disabled={isSubmitting}
+              className="w-full bg-gradient-to-r from-blue-600 to-indigo-600 text-white py-3 px-6 rounded-lg font-medium hover:from-blue-700 hover:to-indigo-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transform transition-all duration-200 hover:scale-[1.02] disabled:opacity-50"
             >
-              Entrar
+              {isSubmitting ? "Entrando..." : "Entrar"}
             </button>
           </Form>
         </div>
       </div>
-
+ 
       <div className="mt-8 text-center text-sm text-gray-600">
         <p>© 2024 AcutisDataModos</p>
       </div>
     </div>
   );
-};
-
-export default LoginPage;
+ }
