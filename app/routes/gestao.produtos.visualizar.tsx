@@ -98,7 +98,7 @@ export default function EstatisticasProdutos() {
           </header>
 
           <div className="mb-8 flex justify-start">
-            <BackButton to="/gestao" />
+            <BackButton to="/gestao/home" />
           </div>
 
           <div className="bg-white rounded-xl shadow-lg p-6 text-center">
