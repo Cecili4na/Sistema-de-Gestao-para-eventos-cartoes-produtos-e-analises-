@@ -5,7 +5,7 @@ import type { ActionFunction } from "@remix-run/node";
 import { BackButton } from "~/components/BackButton";
 import ProtectedPage from "~/hook/withAuth";
 
-const SENHA_GESTAO = "acutis2024";
+const SENHA_GESTAO = "novaSenha";
 
 interface ActionData {
   error?: string;
